@@ -1,0 +1,21 @@
+Photo Transistor raw reading calibration 10kOhm resistor
+1/125 f2.8  100ISO  10EV		197 199 194
+1/125 f4    100ISO  11EV		419 424 427
+1/125 f5.6  100ISO  12EV		845 849 849
+1/125 f8    100ISO  13EV		948 953 955
+1/125 f11   100ISO  14EV		978 974 973
+1/125 f16   100ISO  15EV		991 990 990
+1/125 f22   100ISO  16EV		997 997 997
+
+Usable range is 10-12EV, bad resistor choice
+
+Photo Transistor raw reading calibration 1kOhm resistor
+1/125 f2.8  100ISO  10EV		~12
+1/125 f4    100ISO  11EV		~25
+1/125 f5.6  100ISO  12EV		~50
+1/125 f8    100ISO  13EV		~100
+1/125 f11   100ISO  14EV		~200
+1/125 f16   100ISO  15EV		~400
+1/125 f22   100ISO  16EV		~830
+
+EV ~= log2(raw) + 6.3
