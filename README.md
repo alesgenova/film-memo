@@ -47,9 +47,9 @@ The rest was written from scratch:
 - __App State__: The application is a state machine. Each different page in the app is modeled as a separate `AppState`. An `AppState` can react to the event coming from the controls appropriately, and cause the transition to another `AppState`.
 
 <div style="display: flex;">
-  <img width="33%" src="misc/img/roll_list.jpg"/>
-  <img width="33%" src="misc/img/frame_list.jpg"/>
-  <img width="33%" src="misc/img/frame_edit.jpg"/>
+  <img width="32.5%" src="misc/img/roll_list.jpg"/>
+  <img width="32.5%" src="misc/img/frame_list.jpg"/>
+  <img width="32.5%" src="misc/img/frame_edit.jpg"/>
 </div>
 
 ### Minimizing Memory usage
@@ -122,8 +122,8 @@ In the actual device I separated the components between to boards:
 - __Top board__: rotary encoders and OLED display.
 
 <div style="display: flex;">
-  <img width="50%" src="misc/img/teardown1.jpg"/>
-  <img width="50%" src="misc/img/teardown2.jpg"/>
+  <img width="49%" src="misc/img/teardown1.jpg"/>
+  <img width="49%" src="misc/img/teardown2.jpg"/>
 </div>
 
 The two boards can be stacked similarly to an Arduino hat: the male/female connections between them keeps the two parts together, and the assembly fits in the enclosure by the tightest of margins.
