@@ -1,7 +1,6 @@
 #include "Controls.h"
 
 #include <Arduino.h>
-#include <Wire.h>
 
 #include "constants.h"
 
@@ -17,7 +16,7 @@ Controls::Controls()
   , rotaryA(pinStreamRotaryA, ROT_A_1_MASK, ROT_A_2_MASK, true)
   , rotaryB(pinStreamRotaryB, ROT_B_1_MASK, ROT_B_2_MASK, true)
   , flash(pinStreamFlash, true)
-  , display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET)
+  , display()
   , meter(METER_PIN_ANALOG)
 {}
 
@@ -41,14 +40,11 @@ void Controls::initialize()
   pinMode(ROT_B_2_PIN, INPUT_PULLUP);
   pinMode(FLASH_PIN, INPUT_PULLUP);
 
-  auto success = display.begin(SSD1306_SWITCHCAPVCC, SCREEN_ADDRESS);
+  display.begin(SCREEN_ADDRESS);
+  display.setContrast(200);
 
-  if (!success) {
-    Serial.println(F("E DISP"));
-  }
-
-  display.clearDisplay();
-  display.display();
+  display.clear();
+  display.render();
 
   attachInterrupt(FLASH_INTERRUPT, &Controls::onFlashInterrupt, CHANGE);
 }
@@ -61,6 +57,8 @@ void Controls::process(int t)
   rotaryB.process(t);
   flash.process(t);
   meter.process(t);
+
+  display.render();
 }
 
 void Controls::onPortInterrupt()

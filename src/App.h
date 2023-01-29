@@ -9,6 +9,10 @@
 #include "Roll.h"
 #include "Frame.h"
 
+#if __MEMO
+#include "ListView.h"
+#endif
+
 class App {
 public:
   static App& instance();

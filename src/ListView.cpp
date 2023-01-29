@@ -1,5 +1,7 @@
 #include "ListView.h"
 
+#include <Arduino.h>
+
 #include "Controls.h"
 
 ListView::ListView()
@@ -12,13 +14,9 @@ void ListView::setTitle(const char* title)
 {
   auto& display = Controls::instance().display;
 
-  display.fillRect(m_bounds[0], m_bounds[1], m_bounds[2], TEXT_HEIGHT, SSD1306_BLACK);
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.setCursor(m_bounds[0], m_bounds[1]);
-  display.print(title);
-  display.drawFastHLine(m_bounds[0], m_bounds[1] + TEXT_HEIGHT + MARGIN, m_bounds[2], SSD1306_WHITE);
-
-  display.display();
+  display.fillRectangle(m_bounds[0], m_bounds[1], m_bounds[0] + m_bounds[2], m_bounds[1] + TEXT_HEIGHT, &Display::blackPainter);
+  display.print(m_bounds[0], m_bounds[1], title);
+  display.drawHLine(m_bounds[0], m_bounds[1] + TEXT_HEIGHT + MARGIN, m_bounds[0] + m_bounds[2]);
 }
 
 void ListView::bounds(uint8_t b[4])
@@ -104,7 +102,7 @@ void ListView::drawItems()
 {
   auto& display = Controls::instance().display;
 
-  display.fillRect(m_bounds[0], m_bounds[1] + TITLE_HEIGHT, m_bounds[2], m_bounds[3] - TITLE_HEIGHT, SSD1306_BLACK);
+  display.fillRectangle(m_bounds[0], m_bounds[1] + TITLE_HEIGHT, m_bounds[0] + m_bounds[2], m_bounds[1] + m_bounds[3], &Display::blackPainter);
 
   if (m_itemGetter.getter) {
     char label[20];
@@ -116,20 +114,16 @@ void ListView::drawItems()
         break;
       }
 
-      uint8_t color = itemIdx == m_selected ? SSD1306_BLACK : SSD1306_WHITE;
-      uint8_t bg_color = itemIdx == m_selected ? SSD1306_WHITE : SSD1306_BLACK;
+      uint8_t y = m_bounds[1] + TITLE_HEIGHT + MARGIN + (TEXT_HEIGHT + MARGIN) * i;
 
-      display.fillRect(m_bounds[0], m_bounds[1] + TITLE_HEIGHT + MARGIN + (TEXT_HEIGHT + MARGIN) * i, m_bounds[2], TEXT_HEIGHT, bg_color);
-      display.setTextColor(color, bg_color);
-      display.setCursor(m_bounds[0], m_bounds[1] + TITLE_HEIGHT + MARGIN + (TEXT_HEIGHT + MARGIN) * i);
+      Display::Painter color = itemIdx == m_selected ? &Display::blackPainter : &Display::whitePainter;
+      Display::Painter bg = itemIdx == m_selected ? &Display::whitePainter : &Display::blackPainter;
+
+      display.fillRectangle(m_bounds[0], y, m_bounds[0] + m_bounds[2], y + TEXT_HEIGHT, bg);
 
       m_itemGetter.getter(m_itemGetter.boundObj, itemIdx, label, 20);
 
-      display.print(label);
+      display.print(m_bounds[0], y, label, color, bg);
     }
   }
-
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-
-  display.display();
 }
