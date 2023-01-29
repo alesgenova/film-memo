@@ -32,7 +32,6 @@ protected:
 
   uint8_t itemsPerPage() const;
 
-
   uint8_t m_bounds[4] = {0, 0, 128, 64};
   uint8_t m_size = 0;
 

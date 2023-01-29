@@ -1,8 +1,7 @@
 #ifndef Controls_h
 #define Controls_h
 
-#include <Adafruit_SSD1306.h>
-
+#include "Display.h"
 #include "PortStream.h"
 #include "PinStream.h"
 #include "PinStreamPCINT.h"
@@ -30,7 +29,7 @@ public:
   Rotary rotaryA;
   Rotary rotaryB;
   Button flash;
-  Adafruit_SSD1306 display;
+  Display display;
   LightMeter meter;
 
 protected:

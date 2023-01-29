@@ -9,7 +9,6 @@
 #include "Exposure.h"
 #elif __MEMO
 #include "Exposure.h"
-#include "ListView.h"
 #include "Roll.h"
 #include "Frame.h"
 #include "Action.h"
@@ -209,9 +208,9 @@ protected:
   void changeManufacturer(bool increase);
   void changeISO(bool increase);
 
-  void drawTitle(bool render = true);
-  void drawManufacturer(bool render = true);
-  void drawISO(bool render = true);
+  void drawTitle();
+  void drawManufacturer();
+  void drawISO();
 };
 
 // EditFrameState
@@ -248,12 +247,12 @@ protected:
   void changeAperture(bool increase);
   void changeShutter(bool increase);
 
-  void drawTitle(bool render = true);
-  void drawAperture(bool render = true);
-  void drawShutter(bool render = true);
-  // void drawEV(bool render = true);
-  void drawScale(bool render = true);
-  void drawReading(bool render = true);
+  void drawTitle();
+  void drawAperture();
+  void drawShutter();
+  // void drawEV();
+  void drawScale();
+  void drawReading();
 
   void updateSettingsExposure();
 

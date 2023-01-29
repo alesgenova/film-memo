@@ -1,10 +1,20 @@
 #include "AppState.h"
 
+#include <WString.h>
+
 #include "App.h"
 #include "Controls.h"
 
-#if __MEMO
+#if __METER
+
+#include <math.h>
+#include <Arduino.h>
+
+#elif __MEMO
+
+#include <Arduino.h>
 #include "Persistency.h"
+
 #endif
 
 
@@ -37,8 +47,7 @@ void DebugAppState::activate()
 
 void DebugAppState::deactivate()
 {
-  Controls::instance().display.clearDisplay();
-  Controls::instance().display.display();
+  Controls::instance().display.clear();
 }
 
 void DebugAppState::onClickButtonA(int t)
@@ -133,64 +142,61 @@ void DebugAppState::drawButtonA()
 {
   auto& display = Controls::instance().display;
 
-  uint8_t color = m_buttonA ? SSD1306_BLACK : SSD1306_WHITE;
-  uint8_t bg_color = m_buttonA ? SSD1306_WHITE : SSD1306_BLACK;
-  display.setTextColor(color, bg_color);        // Draw white text
-  display.setCursor(0,0);             // Start at top-left corner
-  display.print("Button A");
+  Display::Painter color = Display::whitePainter;
+  Display::Painter bg = Display::blackPainter;
 
-  display.display();
+  if (m_buttonA) {
+    color = Display::blackPainter;
+    bg = Display::whitePainter;
+  }
+
+  display.print(0, 0, F("Button A"), color, bg);
 }
 
 void DebugAppState::drawButtonB()
 {
   auto& display = Controls::instance().display;
 
-  uint8_t color = m_buttonB ? SSD1306_BLACK : SSD1306_WHITE;
-  uint8_t bg_color = m_buttonB ? SSD1306_WHITE : SSD1306_BLACK;
-  display.setTextColor(color, bg_color);        // Draw white text
-  display.setCursor(0,20);             // Start at top-left corner
-  display.print("Button B");
+  Display::Painter color = &Display::whitePainter;
+  Display::Painter bg = &Display::blackPainter;
 
-  display.display();
+  if (m_buttonB) {
+    color = &Display::blackPainter;
+    bg = &Display::whitePainter;
+  }
+
+  display.print(0, 20, F("Button B"), color, bg);
 }
 
 void DebugAppState::drawRotaryA()
 {
   auto& display = Controls::instance().display;
 
-  display.drawFastHLine(0, 12, display.width(), SSD1306_BLACK);
-  display.drawFastHLine(0, 12, m_rotaryA * 8, SSD1306_WHITE);
-
-  display.display();
+  display.drawHLine(0, 12, m_rotaryA * 8, &Display::whitePainter);
+  display.drawHLine(m_rotaryA * 8, 12, display.width() - 1, &Display::blackPainter);
 }
 
 void DebugAppState::drawRotaryB()
 {
   auto& display = Controls::instance().display;
 
-  display.drawFastHLine(0, 32, display.width(), SSD1306_BLACK);
-  display.drawFastHLine(0, 32, m_rotaryB * 8, SSD1306_WHITE);
-
-  display.display();
+  display.drawHLine(0, 32, m_rotaryB * 8, &Display::whitePainter);
+  display.drawHLine(m_rotaryB * 8, 32, display.width() - 1, &Display::blackPainter);
 }
 
 void DebugAppState::drawMeter()
 {
   auto& display = Controls::instance().display;
 
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);        // Draw white text
-  display.setCursor(0,40);             // Start at top-left corner
-  display.print("Meter");
+  display.print(0, 40, F("Meter"));
 
-  display.drawFastHLine(0, 52, display.width(), SSD1306_BLACK);
-  display.drawFastHLine(0, 52, (float(m_meterValue) / 1023) * display.width(), SSD1306_WHITE);
+  auto meterX = (float(m_meterValue) / 1023.) * display.width();
 
-  display.setCursor(0, 55);
-  display.print(m_meterValue);
-  display.print("    ");
+  display.drawHLine(0, 52, meterX);
+  display.drawHLine(meterX, 52, display.width() - 1, &Display::blackPainter);
 
-  display.display();
+  display.printEmpty(0, 57, 4);
+  display.print(0, 57, m_meterValue);
 }
 
 #elif __METER
@@ -220,8 +226,7 @@ void LightMeterState::activate()
 
 void LightMeterState::deactivate()
 {
-  Controls::instance().display.clearDisplay();
-  Controls::instance().display.display();
+  Controls::instance().display.clear();
 }
 
 void LightMeterState::onClickButtonA(int t)
@@ -287,94 +292,90 @@ void LightMeterState::drawAperture()
 {
   auto& display = Controls::instance().display;
 
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.setCursor(0,0);
-  display.print("Aperture");
-  display.setCursor(0,10);
+  display.print(0, 0, F("Aperture"));
+
   char label[4];
   apertureValueAsString(m_aperture, label, 4);
 
-  display.print(label);
-
-  display.display();
+  display.printEmpty(0, 10, 4);
+  display.print(0, 10, label);
 }
 
 void LightMeterState::drawShutter()
 {
   auto& display = Controls::instance().display;
 
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.setCursor(0,20);
-  display.print("Shutter");
-  display.setCursor(0,30);
+  display.print(0, 20, F("Shutter"));
+
   char label[5];
   shutterSpeedAsString(m_shutter, label, 5);
 
-  display.print(label);
-
-  display.display();
+  display.printEmpty(0, 30, 5);
+  display.print(0, 30, label);
 }
 
 void LightMeterState::drawISO()
 {
   auto& display = Controls::instance().display;
 
-  uint8_t color = m_editISO ? SSD1306_BLACK : SSD1306_WHITE;
-  uint8_t bg_color = m_editISO ? SSD1306_WHITE : SSD1306_BLACK;
+  Display::Painter color = &Display::whitePainter;
+  Display::Painter bg = &Display::blackPainter;
 
-  display.setTextColor(color, bg_color);
-  display.setCursor(110, 0);
-  display.print("ISO");
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.setCursor(100,10);
+  if (m_editISO) {
+    color = &Display::blackPainter;
+    bg = &Display::whitePainter;
+  }
+
+  display.print(110, 0, F("ISO"), color, bg);
+
   char label[5];
   isoValueAsString(m_iso, label, 5);
 
-  display.print(label);
-
-  display.display();
+  display.printEmpty(100, 10, 5);
+  display.print(100, 10, label);  
 }
 
 void LightMeterState::drawEV()
 {
   auto& display = Controls::instance().display;
 
-  display.setCursor(116, 20);
-  display.print("EV");
-  display.setCursor(116,30);
-  display.print("  ");
-  display.setCursor(116,30);
-  display.print(int(round(m_meterExposure)));
+  display.print(116, 20, F("EV"));
 
-  display.display();
+  char label[4];
+  itoa(int(round(m_meterExposure)), label, 10);
+  display.printEmpty(116, 30, 4);
+  display.print(116, 30, label);
 }
 
 void LightMeterState::drawScale()
 {
   auto& display = Controls::instance().display;
 
-  const int Y = 50;
-  const int PADDING = 8;
-  const int PIXELS_PER_EV = (128 - PADDING * 2) / 6;
-  const int TICK_SIZE = 3;
+  const uint8_t Y = 50;
+  const uint8_t PADDING = 8;
+  const uint8_t PIXELS_PER_EV = (128 - PADDING * 2) / 6;
+  const uint8_t TICK_SIZE = 3;
 
-  display.drawFastHLine(PADDING, Y, 6 * PIXELS_PER_EV, SSD1306_WHITE);
+  display.drawHLine(PADDING, Y, PADDING + 6 * PIXELS_PER_EV);
 
-  for (int i = 0; i < 7; ++i) {
-    display.drawFastVLine(PADDING + i * PIXELS_PER_EV, Y - TICK_SIZE, TICK_SIZE * 2, SSD1306_WHITE);
-    display.setCursor(i * PIXELS_PER_EV, Y + TICK_SIZE + 2);
+  for (uint8_t i = 0; i < 7; ++i) {
+    display.drawVLine(PADDING + i * PIXELS_PER_EV, Y - TICK_SIZE, Y + TICK_SIZE);
+
+    uint8_t x = i * PIXELS_PER_EV;
+    uint8_t y = Y + TICK_SIZE + 2;
 
     auto delta = i - 3;
 
     if (delta == 0) {
-      display.print(" ");
+      display.printEmpty(x, y, 1);
+      x += 8;
     } else if (delta > 0) {
-      display.print("+");
+      display.print(x, y, "+");
+      x += 8;
     }
-    display.print(i - 3);
-  }
 
-  display.display();
+    display.print(x, y, i - 3);
+  }
 }
 
 void LightMeterState::drawReading()
@@ -391,10 +392,11 @@ void LightMeterState::drawReading()
   exposure_diff = min(3, exposure_diff);
   exposure_diff = max(-3, exposure_diff);
 
-  display.fillRect(0, Y - TICK_SIZE - 5, display.width(), 5, SSD1306_BLACK);
-  display.fillCircle(PADDING + (exposure_diff + 3) * PIXELS_PER_EV, Y - TICK_SIZE - 3, 2, SSD1306_WHITE);
+  const uint8_t centerX = PADDING + (exposure_diff + 3) * PIXELS_PER_EV;
+  const uint8_t centerY = Y - TICK_SIZE - 3;
 
-  display.display();
+  display.fillRectangle(0, Y - TICK_SIZE - 5, display.width(), Y - TICK_SIZE, &Display::blackPainter);
+  display.fillRectangle(centerX - 2, centerY - 2, centerX + 2, centerY + 2);
 }
 
 void LightMeterState::changeAperture(bool increase)
@@ -469,7 +471,7 @@ void ListState::activate()
 {
   auto& display = Controls::instance().display;
 
-  display.clearDisplay();
+  display.clear();
 
   uint8_t bounds[4] = {0, 0, display.width(), display.height()};
   m_app.m_listView.setBounds(bounds);
@@ -500,10 +502,7 @@ void ListState::activate()
 }
 
 void ListState::deactivate()
-{
-  // Controls::instance().display.clearDisplay();
-  // Controls::instance().display.display();
-}
+{}
 
 void ListState::setIsFrameTarget(bool isFrameTarget)
 {
@@ -630,7 +629,7 @@ void EditRollState::activate()
 {
   auto& display = Controls::instance().display;
 
-  display.clearDisplay();
+  display.clear();
 
   auto& activeRoll = m_app.m_rolls[m_app.m_activeRollId];
 
@@ -646,18 +645,13 @@ void EditRollState::activate()
     m_roll.setIso(activeRoll.iso());
   }
 
-  drawTitle(false);
-  drawManufacturer(false);
-  drawISO(true);
+  drawTitle();
+  drawManufacturer();
+  drawISO();
 }
 
 void EditRollState::deactivate()
-{
-  auto& display = Controls::instance().display;
-
-  display.clearDisplay();
-  display.display();
-}
+{}
 
 void EditRollState::onClickButtonA(int t)
 {
@@ -734,77 +728,48 @@ void EditRollState::changeISO(bool increase)
   }
 }
 
-void EditRollState::drawTitle(bool render)
+void EditRollState::drawTitle()
 {
   auto& display = Controls::instance().display;
 
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.setCursor(0, 0);
-  display.print(F("Roll #"));
-  char l[3];
-  itoa(m_app.m_activeRollId, l, 10);
-  display.print(l);
-  display.drawFastHLine(0, TEXT_HEIGHT + MARGIN, display.width(), SSD1306_WHITE);
-
-  if (render) {
-    display.display();
-  }
+  uint8_t x = 0;
+  x = display.print(x, 0, F("Roll #"));
+  display.print(x, 0, m_app.m_activeRollId);
+  display.drawHLine(0, TEXT_HEIGHT + MARGIN, display.width());
 }
 
-void EditRollState::drawManufacturer(bool render)
+void EditRollState::drawManufacturer()
 {
   auto& display = Controls::instance().display;
 
   uint8_t y = TITLE_HEIGHT + MARGIN * 2;
 
-  display.setCursor(0, y);
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.print(F("Brand"));
+  display.print(0, y, F("Brand"));
 
   char label[6];
   rollManufacturerAsString(m_roll.manufacturer(), label, 6);
 
   y += TEXT_HEIGHT + MARGIN;
 
-  display.setTextSize(2, 2);
-  display.setCursor(0, y);
-  display.print(F("      "));
-  display.setCursor(0, y);
-  display.print(label);
-
-  display.setTextSize(1);
-
-  if (render) {
-    display.display();
-  }
+  display.printEmpty(0, y, 6, &Display::blackPainter, 2, 2);
+  display.print(0, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
 }
 
-void EditRollState::drawISO(bool render)
+void EditRollState::drawISO()
 {
   auto& display = Controls::instance().display;
 
   uint8_t y = TITLE_HEIGHT + TEXT_HEIGHT * 3 + MARGIN * 6;
 
-  display.setCursor(0, y);
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.print(F("ISO"));
+  display.print(0, y, F("ISO"));
 
   char label[5];
   isoValueAsString(m_roll.iso(), label, 5);
 
   y += TEXT_HEIGHT + MARGIN;
 
-  display.setTextSize(2, 2);
-  display.setCursor(0, y);
-  display.print(F("     "));
-  display.setCursor(0, y);
-  display.print(label);
-
-  display.setTextSize(1);
-
-  if (render) {
-    display.display();
-  }
+  display.printEmpty(0, y, 5, &Display::blackPainter, 2, 2);
+  display.print(0, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
 }
 
 // EditFrameState
@@ -823,7 +788,7 @@ void EditFrameState::activate()
 {
   auto& display = Controls::instance().display;
 
-  display.clearDisplay();
+  display.clear();
 
   auto& activeRoll = m_app.m_rolls[m_app.m_activeRollId];
   auto& activeFrame = m_app.m_frames[m_app.m_activeFrameId];
@@ -844,12 +809,12 @@ void EditFrameState::activate()
   }
 
   updateSettingsExposure();
-  drawTitle(false);
-  drawAperture(false);
-  drawShutter(true);
-  // drawEV(false);
-  drawScale(false);
-  drawReading(true);
+  drawTitle();
+  drawAperture();
+  drawShutter();
+  // drawEV();
+  drawScale();
+  drawReading();
 }
 
 void EditFrameState::deactivate()
@@ -883,9 +848,10 @@ void EditFrameState::onClickButtonB(int t)
         m_app.m_activeFrameId = nextFrameId;
         // Give a subtle feedback to the user that the frame was saved
         auto& display = Controls::instance().display;
-        display.fillRect(0, 0, display.width(), TEXT_HEIGHT, SSD1306_INVERSE);
-        display.display();
-        drawTitle(true);
+        display.fillRectangle(0, 0, display.width(), TEXT_HEIGHT, &Display::inversePainter);
+        display.render();
+        delay(100);
+        drawTitle();
 
         return;
       }
@@ -950,94 +916,63 @@ void EditFrameState::onMeterReading(int value)
   drawReading();
 }
 
-void EditFrameState::drawTitle(bool render)
+void EditFrameState::drawTitle()
 {
   auto& display = Controls::instance().display;
 
-  display.fillRect(0, 0, display.width(), TEXT_HEIGHT, SSD1306_BLACK);
+  display.fillRectangle(0, 0, display.width(), TEXT_HEIGHT, &Display::blackPainter);
 
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.setCursor(0, 0);
-  display.print(F("Frame #"));
+  uint8_t x = 0;
+  x = display.print(0, 0, F("Frame #"));
+  x = display.print(x, 0, m_app.m_activeFrameId);
+  x = display.printEmpty(x, 0, 2);
   char l[12];
-  itoa(m_app.m_activeFrameId, l, 10);
-  display.print(l);
-
-  display.print(F("  "));
   rollManufacturerAsString(m_roll.manufacturer(), l, 12);
-  display.print(l);
-  display.print(F(" "));
+  x = display.print(x, 0, l);
+  x = display.printEmpty(x, 0, 1);
   isoValueAsString(m_roll.iso(), l, 12);
-  display.print(l);
-  display.drawFastHLine(0, TEXT_HEIGHT + MARGIN, display.width(), SSD1306_WHITE);
-
-  if (render) {
-    display.display();
-  }
+  display.print(x, 0, l);
+  display.drawHLine(0, TEXT_HEIGHT + MARGIN, display.width());
 }
 
-void EditFrameState::drawAperture(bool render)
+void EditFrameState::drawAperture()
 {
   auto& display = Controls::instance().display;
 
+  uint8_t x = 0;
   uint8_t y = TITLE_HEIGHT + MARGIN * 2;
 
-  display.setCursor(0, y);
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.print(F("Aperture"));
+  display.print(x, y, F("Aperture"));
 
   char label[4];
   apertureValueAsString(m_frame.aperture(), label, 4);
 
   y += TEXT_HEIGHT + MARGIN;
 
-  display.setTextSize(2, 2);
-  display.setCursor(0, y);
-  display.print(F("   "));
-  display.setCursor(0, y);
-  display.print(label);
-
-  display.setTextSize(1);
-
-  if (render) {
-    display.display();
-  }
+  display.printEmpty(x, y, 3, &Display::blackPainter, 2, 2);
+  display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
 }
 
-void EditFrameState::drawShutter(bool render)
+void EditFrameState::drawShutter()
 {
   auto& display = Controls::instance().display;
 
+  uint8_t x = display.width() - 42;
   uint8_t y = TITLE_HEIGHT + MARGIN * 2;
 
-  int pos[2];
-  int size[2];
-
-  display.setCursor(display.width() - 42, y);
-  display.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
-  display.print(F("Shutter"));
+  display.print(x, y, F("Shutter"));
 
   char label[5];
   shutterSpeedAsString(m_frame.shutter(), label, 5);
 
+  x = display.width() - 12 * strlen(label);
   y += TEXT_HEIGHT + MARGIN;
 
-  size_t x = display.width() - 12 * strlen(label);
-
-  display.setTextSize(2, 2);
-  display.setCursor(display.width() - 12 * 4, y);
-  display.print(F("    "));
-  display.setCursor(x, y);
-  display.print(label);
-
-  display.setTextSize(1);
-
-  if (render) {
-    display.display();
-  }
+  display.printEmpty(display.width() - 12 * 4, y, 4, &Display::blackPainter, 2, 2);
+  display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
 }
 
-// void EditFrameState::drawEV(bool render)
+// void EditFrameState::drawEV()
 // {
 //   auto& display = Controls::instance().display;
 
@@ -1051,35 +986,38 @@ void EditFrameState::drawShutter(bool render)
 //   display.display();
 // }
 
-void EditFrameState::drawScale(bool render)
+void EditFrameState::drawScale()
 {
   auto& display = Controls::instance().display;
 
-  const int Y = 50;
-  const int PADDING = 8;
-  const int PIXELS_PER_EV = (128 - PADDING * 2) / 6;
-  const int TICK_SIZE = 3;
+  const uint8_t Y = 50;
+  const uint8_t PADDING = 8;
+  const uint8_t PIXELS_PER_EV = (128 - PADDING * 2) / 6;
+  const uint8_t TICK_SIZE = 3;
 
-  display.drawFastHLine(PADDING, Y, 6 * PIXELS_PER_EV, SSD1306_WHITE);
+  display.drawHLine(PADDING, Y, PADDING + 6 * PIXELS_PER_EV);
 
-  for (int i = 0; i < 7; ++i) {
-    display.drawFastVLine(PADDING + i * PIXELS_PER_EV, Y - TICK_SIZE, TICK_SIZE * 2, SSD1306_WHITE);
-    display.setCursor(i * PIXELS_PER_EV, Y + TICK_SIZE + 2);
+  for (uint8_t i = 0; i < 7; ++i) {
+    display.drawVLine(PADDING + i * PIXELS_PER_EV, Y - TICK_SIZE, Y + TICK_SIZE);
+
+    uint8_t x = i * PIXELS_PER_EV;
+    uint8_t y = Y + TICK_SIZE + 2;
 
     auto delta = i - 3;
 
     if (delta == 0) {
-      display.print(" ");
+      display.printEmpty(x, y, 1);
+      x += 8;
     } else if (delta > 0) {
-      display.print("+");
+      display.print(x, y, "+");
+      x += 8;
     }
-    display.print(i - 3);
-  }
 
-  display.display();
+    display.print(x, y, i - 3);
+  }
 }
 
-void EditFrameState::drawReading(bool render)
+void EditFrameState::drawReading()
 {
   auto& display = Controls::instance().display;
 
@@ -1093,10 +1031,11 @@ void EditFrameState::drawReading(bool render)
   exposure_diff = min(3, exposure_diff);
   exposure_diff = max(-3, exposure_diff);
 
-  display.fillRect(0, Y - TICK_SIZE - 5, display.width(), 5, SSD1306_BLACK);
-  display.fillCircle(PADDING + (exposure_diff + 3) * PIXELS_PER_EV, Y - TICK_SIZE - 3, 2, SSD1306_WHITE);
+  const uint8_t centerX = PADDING + (exposure_diff + 3) * PIXELS_PER_EV;
+  const uint8_t centerY = Y - TICK_SIZE - 3;
 
-  display.display();
+  display.fillRectangle(0, Y - TICK_SIZE - 5, display.width(), Y - TICK_SIZE, &Display::blackPainter);
+  display.fillRectangle(centerX - 2, centerY - 2, centerX + 2, centerY + 2);
 }
 
 void EditFrameState::changeAperture(bool increase)
@@ -1164,8 +1103,8 @@ void EditModalState::activate()
 
   uint8_t bounds[4] = {padding, padding, display.width() - 2 * padding, display.height() - 2 * padding};
 
-  display.fillRect(bounds[0] - 4, bounds[1] - 4, bounds[2] + 8, bounds[3] + 8, SSD1306_BLACK);
-  display.drawRect(bounds[0] - 2, bounds[1] - 2, bounds[2] + 4, bounds[3] + 4, SSD1306_WHITE);
+  display.fillRectangle(bounds[0] - 4, bounds[1] - 4, bounds[0] + bounds[2] + 4, bounds[1] + bounds[3] + 4, &Display::blackPainter);
+  display.drawRectangle(bounds[0] - 2, bounds[1] - 2, bounds[0] + bounds[2] + 2, bounds[1] + bounds[3] + 2);
 
   m_app.m_listView.setBounds(bounds);
   char title[22];
@@ -1285,14 +1224,10 @@ void AboutState::activate()
 {
   auto& display = Controls::instance().display;
 
-  display.clearDisplay();
+  display.clear();
 
-  display.setCursor(21, 8);
-  display.print(F("Copyright 2023"));
-  display.setCursor(12, 20);
-  display.print(F("Alessandro Genova"));
-
-  display.display();
+  display.print(21, 8, F("Copyright 2023"));
+  display.print(12, 20, F("Alessandro Genova"));
 }
 
 void AboutState::deactivate()
