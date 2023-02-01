@@ -5,9 +5,7 @@
 
 #include "constants.h"
 
-#if __METER
-#include "Exposure.h"
-#elif __MEMO
+#if __MEMO
 #include "Exposure.h"
 #include "Roll.h"
 #include "Frame.h"
@@ -91,56 +89,6 @@ protected:
   uint8_t m_rotaryA = 7;
   uint8_t m_rotaryB = 7;
   int m_meterValue = 255;
-};
-
-#elif __METER
-
-// LightMeterState
-
-class LightMeterState : public AppState {
-public:
-  LightMeterState(App& app);
-  ~LightMeterState();
-
-  LightMeterState(const LightMeterState&) = delete;
-  LightMeterState& operator=(const LightMeterState&) = delete;
-
-  virtual void activate() override;
-  virtual void deactivate() override;
-
-  virtual void onClickButtonA(int t) override;
-  virtual void onLongpressButtonA(int t) override;
-
-  virtual void onClickButtonB(int t) override;
-  virtual void onLongpressButtonB(int t) override;
-
-  virtual void onRightRotaryA(int t) override;
-  virtual void onLeftRotaryA(int t) override;
-
-  virtual void onRightRotaryB(int t) override;
-  virtual void onLeftRotaryB(int t) override;
-
-  virtual void onMeterReading(int value) override;
-
-protected:
-  void drawAperture();
-  void drawShutter();
-  void drawISO();
-  void drawEV();
-  void drawScale();
-  void drawReading();
-
-  void changeAperture(bool increase);
-  void changeShutter(bool increase);
-  void changeISO(bool increase);
-  void updateSettingsExposure();
-
-  ApertureValue m_aperture = ApertureValue::_8;
-  ShutterSpeed m_shutter = ShutterSpeed::_125;
-  ISOValue m_iso = ISOValue::_400;
-  float m_meterExposure = 10;
-  float m_settingsExposure = 10;
-  bool m_editISO = false;
 };
 
 #elif __MEMO
@@ -296,6 +244,8 @@ protected:
   Action m_actions[3];
 };
 
+// AboutState
+
 class AboutState : public AppState {
 public:
   AboutState(App& app);
@@ -309,6 +259,55 @@ public:
 
   virtual void onClickButtonB(int t) override;
 };
+
+// LightMeterState
+
+class LightMeterState : public AppState {
+public:
+  LightMeterState(App& app);
+  ~LightMeterState();
+
+  LightMeterState(const LightMeterState&) = delete;
+  LightMeterState& operator=(const LightMeterState&) = delete;
+
+  virtual void activate() override;
+  virtual void deactivate() override;
+
+  virtual void onClickButtonA(int t) override;
+  virtual void onLongpressButtonA(int t) override;
+
+  virtual void onClickButtonB(int t) override;
+  virtual void onLongpressButtonB(int t) override;
+
+  virtual void onRightRotaryA(int t) override;
+  virtual void onLeftRotaryA(int t) override;
+
+  virtual void onRightRotaryB(int t) override;
+  virtual void onLeftRotaryB(int t) override;
+
+  virtual void onMeterReading(int value) override;
+
+protected:
+  void drawAperture();
+  void drawShutter();
+  void drawISO();
+  void drawEV();
+  void drawScale();
+  void drawReading();
+
+  void changeAperture(bool increase);
+  void changeShutter(bool increase);
+  void changeISO(bool increase);
+  void updateSettingsExposure();
+
+  ApertureValue m_aperture = ApertureValue::_8;
+  ShutterSpeed m_shutter = ShutterSpeed::_125;
+  ISOValue m_iso = ISOValue::_400;
+  float m_meterExposure = 10;
+  float m_settingsExposure = 10;
+  bool m_editISO = false;
+};
+
 
 #endif
 

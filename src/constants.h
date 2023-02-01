@@ -5,7 +5,6 @@
 
 // define which app is being built
 #define __DEBUG false // app to test buttons and rotaries
-#define __METER false // incident light meter application
 #define __MEMO  true  // full film memo application
 #define __DEV   false // whether to enable Serial
 
