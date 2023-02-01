@@ -74,7 +74,7 @@ void Frame::asString(uint8_t i, char* s, uint8_t n)
 {
   uint8_t p = 0;
 
-  strncpy_P(s, (const char*)F(" #"), n);
+  strncpy_P(s, PSTR(" #"), n);
   p += 2;
 
   {
@@ -84,13 +84,13 @@ void Frame::asString(uint8_t i, char* s, uint8_t n)
     p += strlen(tmp);
   }
 
-  strncpy_P((s + p), (const char*)F(" f"), n - p);
+  strncpy_P((s + p), PSTR(" f"), n - p);
   p += 2;
 
   auto aperture = this->aperture();
 
   if (aperture == ApertureValue::None) {
-    strncpy_P((s + p - 1), (const char*)F("<empty>"), n - p);
+    strncpy_P((s + p - 1), PSTR("<empty>"), n - p);
     return;
   }
 
@@ -103,7 +103,7 @@ void Frame::asString(uint8_t i, char* s, uint8_t n)
 
   auto shutter = this->shutter();
 
-  strncpy_P((s + p), (const char*)F(" 1/"), n - p);
+  strncpy_P((s + p), PSTR(" 1/"), n - p);
   p += 3;
 
   {

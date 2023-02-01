@@ -99,34 +99,34 @@ void apertureValueAsString(ApertureValue aperture, char* s, uint8_t n)
 {
   switch(aperture) {
     case ApertureValue::_1_4 : {
-      strncpy_P(s, (const char*)F("1.4\0"), n);
+      strncpy_P(s, PSTR("1.4"), n);
       break;
     } case ApertureValue::_2 : {
-      strncpy_P(s, (const char*)F("2\0"), n);
+      strncpy_P(s, PSTR("2"), n);
       break;
     } case ApertureValue::_2_8 : {
-      strncpy_P(s, (const char*)F("2.8\0"), n);
+      strncpy_P(s, PSTR("2.8"), n);
       break;
     } case ApertureValue::_4 : {
-      strncpy_P(s, (const char*)F("4\0"), n);
+      strncpy_P(s, PSTR("4"), n);
       break;
     } case ApertureValue::_5_6 : {
-      strncpy_P(s, (const char*)F("5.6\0"), n);
+      strncpy_P(s, PSTR("5.6"), n);
       break;
     } case ApertureValue::_8 : {
-      strncpy_P(s, (const char*)F("8\0"), n);
+      strncpy_P(s, PSTR("8"), n);
       break;
     } case ApertureValue::_11 : {
-      strncpy_P(s, (const char*)F("11\0"), n);
+      strncpy_P(s, PSTR("11"), n);
       break;
     } case ApertureValue::_16 : {
-      strncpy_P(s, (const char*)F("16\0"), n);
+      strncpy_P(s, PSTR("16"), n);
       break;
     } case ApertureValue::_22 : {
-      strncpy_P(s, (const char*)F("22\0"), n);
+      strncpy_P(s, PSTR("22"), n);
       break;
     } default: {
-      strncpy_P(s, (const char*)F("Unk\0"), n);
+      strncpy_P(s, PSTR("Unk"), n);
       break;
     }
   }
@@ -138,37 +138,37 @@ void shutterSpeedAsString(ShutterSpeed shutter, char* s, uint8_t n)
 {
   switch(shutter) {
     case ShutterSpeed::_2 : {
-      strncpy_P(s, (const char*)F("2\0"), n);
+      strncpy_P(s, PSTR("2"), n);
       break;
     } case ShutterSpeed::_4 : {
-      strncpy_P(s, (const char*)F("4\0"), n);
+      strncpy_P(s, PSTR("4"), n);
       break;
     } case ShutterSpeed::_8 : {
-      strncpy_P(s, (const char*)F("8\0"), n);
+      strncpy_P(s, PSTR("8"), n);
       break;
     } case ShutterSpeed::_15 : {
-      strncpy_P(s, (const char*)F("15\0"), n);
+      strncpy_P(s, PSTR("15"), n);
       break;
     } case ShutterSpeed::_30 : {
-      strncpy_P(s, (const char*)F("30\0"), n);
+      strncpy_P(s, PSTR("30"), n);
       break;
     } case ShutterSpeed::_60 : {
-      strncpy_P(s, (const char*)F("60\0"), n);
+      strncpy_P(s, PSTR("60"), n);
       break;
     } case ShutterSpeed::_125 : {
-      strncpy_P(s, (const char*)F("125\0"), n);
+      strncpy_P(s, PSTR("125"), n);
       break;
     } case ShutterSpeed::_250 : {
-      strncpy_P(s, (const char*)F("250\0"), n);
+      strncpy_P(s, PSTR("250"), n);
       break;
     } case ShutterSpeed::_500 : {
-      strncpy_P(s, (const char*)F("500\0"), n);
+      strncpy_P(s, PSTR("500"), n);
       break;
     } case ShutterSpeed::_1000 : {
-      strncpy_P(s, (const char*)F("1000\0"), n);
+      strncpy_P(s, PSTR("1000"), n);
       break;
     } default: {
-      strncpy_P(s, (const char*)F("Unk\0"), n);
+      strncpy_P(s, PSTR("Unk"), n);
       break;
     }
   }
@@ -180,22 +180,22 @@ void isoValueAsString(ISOValue iso, char* s, uint8_t n)
 {
   switch(iso) {
     case ISOValue::_100 : {
-      strncpy_P(s, (const char*)F("100\0"), n);
+      strncpy_P(s, PSTR("100"), n);
       break;
     } case ISOValue::_200 : {
-      strncpy_P(s, (const char*)F("200\0"), n);
+      strncpy_P(s, PSTR("200"), n);
       break;
     } case ISOValue::_400 : {
-      strncpy_P(s, (const char*)F("400\0"), n);
+      strncpy_P(s, PSTR("400"), n);
       break;
     } case ISOValue::_800 : {
-      strncpy_P(s, (const char*)F("800\0"), n);
+      strncpy_P(s, PSTR("800"), n);
       break;
     } case ISOValue::_1600 : {
-      strncpy_P(s, (const char*)F("1600\0"), n);
+      strncpy_P(s, PSTR("1600"), n);
       break;
     } default: {
-      strncpy_P(s, (const char*)F("Unk\0"), n);
+      strncpy_P(s, PSTR("Unk"), n);
       break;
     }
   }

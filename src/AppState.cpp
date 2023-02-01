@@ -221,7 +221,7 @@ void ListState::activate()
   uint8_t activeItem;
 
   if (m_isFrameTarget) {
-    strncpy_P(title, (const char*)F("Roll\0"), 22);
+    strncpy_P(title, PSTR("Roll"), 22);
     Roll roll;
     Persistency::readRoll(m_app.m_activeRollId, roll);
     roll.asString(m_app.m_activeRollId, title + 4, 18);
@@ -229,7 +229,7 @@ void ListState::activate()
     size = N_FRAMES_PER_ROLL;
     activeItem = m_app.m_activeFrameId;
   } else {
-    strncpy_P(title, (const char*)F("Rolls\0"), 22);
+    strncpy_P(title, PSTR("Rolls"), 22);
     itemGetter.getter = &ListState::rollItemGetter;
     size = N_ROLLS;
     activeItem = m_app.m_activeRollId;
