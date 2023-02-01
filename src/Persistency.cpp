@@ -7,10 +7,10 @@
 namespace Persistency {
 
 // Reserve a few bites in the EEPROM for future persisten settings
-const uint8_t SETTINGS_BYTES = 32;
+const uint8_t SETTINGS_BYTES = 64;
 
 const uint8_t ROLL_BYTES = sizeof(Roll);
-const uint8_t FRAME_BYTES = sizeof(Roll);
+const uint8_t FRAME_BYTES = sizeof(Frame);
 
 void readRoll(uint8_t rollId, Roll& roll)
 {

@@ -47,8 +47,8 @@ protected:
 
   IOEvent eventBufferButtonA[2];
   IOEvent eventBufferButtonB[2];
-  IOEvent eventBufferRotaryA[4];
-  IOEvent eventBufferRotaryB[4];
+  IOEvent eventBufferRotaryA[8];
+  IOEvent eventBufferRotaryB[8];
   IOEvent eventBufferFlash[2];
 };
 

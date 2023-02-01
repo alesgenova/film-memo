@@ -41,9 +41,6 @@ protected:
   uint8_t m_activeRollId = 0;
   uint8_t m_activeFrameId = 0;
 
-  Roll m_rolls[N_ROLLS];
-  Frame m_frames[N_FRAMES];
-
   ListView m_listView;
 #endif
 
@@ -67,8 +64,6 @@ protected:
   static void onLongpressFlash(void* self, const int& t);
 
   static void onMeterReading(void* self, const int& value);
-
-  static uint8_t frameIndex(uint8_t rollId, uint8_t frameId);
 
   friend class DebugAppState;
   friend class LightMeterState;

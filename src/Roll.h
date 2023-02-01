@@ -3,7 +3,7 @@
 
 #include "Exposure.h"
 
-enum class RollManufacturer {
+enum class RollManufacturer : uint8_t {
   None,
   Fuji,
   Kodak,
@@ -26,7 +26,8 @@ public:
   void asString(uint8_t i, char* s, uint8_t n);
 
 protected:
-  uint8_t m_data = 0;
+  ISOValue m_iso = ISOValue::None;
+  RollManufacturer m_manufacturer = RollManufacturer::None;
 };
 
 #endif

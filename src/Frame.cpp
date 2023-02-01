@@ -2,29 +2,72 @@
 
 #include <WString.h>
 
-const uint8_t APERTURE_MASK = 0b00001111;
-const uint8_t SHUTTER_MASK  = 0b11110000;
+void focalLengthAsString(FocalLength focal, char* s, uint8_t n)
+{
+  switch(focal) {
+    case FocalLength::_20 : {
+      strncpy_P(s, PSTR("20"), n);
+      break;
+    } case FocalLength::_24 : {
+      strncpy_P(s, PSTR("24"), n);
+      break;
+    } case FocalLength::_28 : {
+      strncpy_P(s, PSTR("28"), n);
+      break;
+    } case FocalLength::_35 : {
+      strncpy_P(s, PSTR("35"), n);
+      break;
+    } case FocalLength::_40 : {
+      strncpy_P(s, PSTR("40"), n);
+      break;
+    } case FocalLength::_50 : {
+      strncpy_P(s, PSTR("50"), n);
+      break;
+    } case FocalLength::_85 : {
+      strncpy_P(s, PSTR("85"), n);
+      break;
+    } case FocalLength::_135 : {
+      strncpy_P(s, PSTR("135"), n);
+      break;
+    } case FocalLength::None : {
+      strncpy_P(s, PSTR("None"), n);
+      break;
+    } default: {
+      strncpy_P(s, PSTR("Unk"), n);
+    }
+  }
+
+  s[n-1] = '\0';
+}
 
 ApertureValue Frame::aperture() const
 {
-  return (ApertureValue)(m_data & APERTURE_MASK);
+  return m_aperture;
 }
 
 void Frame::setAperture(ApertureValue aperture)
 {
-  m_data = m_data & SHUTTER_MASK;
-  m_data = m_data ^ (uint8_t)aperture;
+  m_aperture = aperture;
 }
 
 ShutterSpeed Frame::shutter() const
 {
-  return (ShutterSpeed)((m_data & SHUTTER_MASK) >> 4);
+  return m_shutter;
 }
 
 void Frame::setShutter(ShutterSpeed shutter)
 {
-  m_data = m_data & APERTURE_MASK;
-  m_data = m_data ^ ((uint8_t)shutter << 4);
+  m_shutter = shutter;
+}
+
+FocalLength Frame::focal() const
+{
+  return m_focal;
+}
+
+void Frame::setFocal(FocalLength focal)
+{
+  m_focal = focal;
 }
 
 void Frame::asString(uint8_t i, char* s, uint8_t n)
@@ -69,4 +112,19 @@ void Frame::asString(uint8_t i, char* s, uint8_t n)
     strncpy((s + p), tmp, n - p);
     p += strlen(tmp);
   }
+
+  auto focal = this->focal();
+
+  strncpy_P((s + p), PSTR(" "), n - p);
+  p += 1;
+
+  {
+    char tmp[4];
+    focalLengthAsString(focal, tmp, 4);
+    strncpy((s + p), tmp, n - p);
+    p += strlen(tmp);
+  }
+
+  strncpy_P((s + p), PSTR("mm"), n - p);
+  p += 2;
 }

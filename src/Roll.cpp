@@ -2,29 +2,24 @@
 
 #include <WString.h>
 
-const uint8_t MANUFACTURER_MASK = 0b00001111;
-const uint8_t ISO_MASK  = 0b11110000;
-
 RollManufacturer Roll::manufacturer() const
 {
-  return (RollManufacturer)(m_data & MANUFACTURER_MASK);
+  return m_manufacturer;
 }
 
 void Roll::setManufacturer(RollManufacturer manufacturer)
 {
-  m_data = m_data & ISO_MASK;
-  m_data = m_data ^ (uint8_t)manufacturer;
+  m_manufacturer = manufacturer;
 }
 
 ISOValue Roll::iso() const
 {
-  return (ISOValue)((m_data & ISO_MASK) >> 4);
+  return m_iso;
 }
 
 void Roll::setIso(ISOValue iso)
 {
-  m_data = m_data & MANUFACTURER_MASK;
-  m_data = m_data ^ ((uint8_t)iso << 4);
+  m_iso = iso;
 }
 
 

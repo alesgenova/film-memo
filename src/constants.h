@@ -44,9 +44,8 @@ const uint8_t TEXT_HEIGHT = 8;
 const uint8_t MARGIN = 1;
 const uint8_t TITLE_HEIGHT = TEXT_HEIGHT + MARGIN + 1;
 
-const uint8_t N_ROLLS = 4;
+const uint8_t N_ROLLS = 6;
 const uint8_t N_FRAMES_PER_ROLL = 36;
-const uint8_t N_FRAMES = N_ROLLS * N_FRAMES_PER_ROLL;
 
 #define OLED_RESET     -1
 #define SCREEN_ADDRESS 0x3C

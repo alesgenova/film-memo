@@ -246,10 +246,13 @@ public:
 protected:
   void changeAperture(bool increase);
   void changeShutter(bool increase);
+  void changeFocal(bool increase);
 
   void drawTitle();
+  void drawSeparators();
   void drawAperture();
   void drawShutter();
+  void drawFocal();
   // void drawEV();
   void drawScale();
   void drawReading();
@@ -260,6 +263,7 @@ protected:
   Frame m_frame;
   float m_meterExposure = 10;
   float m_settingsExposure = 10;
+  bool m_editFocal = false;
 };
 
 // EditModalState

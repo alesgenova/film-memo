@@ -55,13 +55,6 @@ void App::initialize()
   controls.meter.readingObservable().addListener(this, &App::onMeterReading);
 
 #if __MEMO
-  for (uint8_t i = 0; i < N_ROLLS; ++i) {
-    Persistency::readRoll(i, m_rolls[i]);
-    for (uint8_t j = 0; j < N_FRAMES_PER_ROLL; ++j) {
-      Persistency::readFrame(i, j, m_frames[App::frameIndex(i, j)]);
-    }
-  }
-
   m_listState.setIsFrameTarget(false);
   m_editModalState.setIsFrameTarget(false);
 #endif
@@ -144,9 +137,4 @@ void App::onMeterReading(void* _self, const int& value)
   auto self = static_cast<App*>(_self);
 
   self->m_state->onMeterReading(value);
-}
-
-uint8_t App::frameIndex(uint8_t rollId, uint8_t frameId)
-{
-  return rollId * N_FRAMES_PER_ROLL + frameId;
 }
