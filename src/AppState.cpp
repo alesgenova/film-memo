@@ -484,7 +484,8 @@ void ListState::activate()
 
   if (m_isFrameTarget) {
     strncpy_P(title, (const char*)F("Roll\0"), 22);
-    auto& roll = m_app.m_rolls[m_app.m_activeRollId];
+    Roll roll;
+    Persistency::readRoll(m_app.m_activeRollId, roll);
     roll.asString(m_app.m_activeRollId, title + 4, 18);
     itemGetter.getter = &ListState::frameItemGetter;
     size = N_FRAMES_PER_ROLL;
@@ -541,7 +542,8 @@ void ListState::onClickButtonB(int t)
     m_app.m_activeRollId = m_app.m_listView.selected();
     m_app.m_activeFrameId = 0;
 
-    auto& selectedRoll = m_app.m_rolls[m_app.m_activeRollId];
+    Roll selectedRoll;
+    Persistency::readRoll(m_app.m_activeRollId, selectedRoll);
 
     if (selectedRoll.manufacturer() == RollManufacturer::None) {
       m_app.m_state->deactivate();
@@ -561,7 +563,8 @@ void ListState::onLongpressButtonB(int t)
   auto activeId = m_app.m_listView.selected();
 
   if (m_isFrameTarget) {
-    auto& selectedFrame = m_app.m_frames[App::frameIndex(m_app.m_activeRollId, activeId)];
+    Frame selectedFrame;
+    Persistency::readFrame(m_app.m_activeRollId, activeId, selectedFrame);
 
     if (selectedFrame.aperture() != ApertureValue::None) {
       m_app.m_activeFrameId = activeId;
@@ -571,7 +574,8 @@ void ListState::onLongpressButtonB(int t)
       m_app.m_state->activate();
     }
   } else {
-    auto& selectedRoll = m_app.m_rolls[activeId];
+    Roll selectedRoll;
+    Persistency::readRoll(activeId, selectedRoll);
 
     if (selectedRoll.manufacturer() != RollManufacturer::None) {
       m_app.m_activeRollId = activeId;
@@ -606,14 +610,17 @@ void ListState::onLeftRotaryB(int t)
 
 void ListState::rollItemGetter(void* _self, uint8_t i, char* s, uint8_t n)
 {
-  auto self = static_cast<ListState*>(_self);
-  self->m_app.m_rolls[i].asString(i, s, n);
+  Roll roll;
+  Persistency::readRoll(i, roll);
+  roll.asString(i, s, n);
 }
 
 void ListState::frameItemGetter(void* _self, uint8_t i, char* s, uint8_t n)
 {
   auto self = static_cast<ListState*>(_self);
-  self->m_app.m_frames[App::frameIndex(self->m_app.m_activeRollId, i)].asString(i, s, n);
+  Frame frame;
+  Persistency::readFrame(self->m_app.m_activeRollId, i, frame);
+  frame.asString(i, s, n);
 }
 
 // EditRollState
@@ -631,7 +638,8 @@ void EditRollState::activate()
 
   display.clear();
 
-  auto& activeRoll = m_app.m_rolls[m_app.m_activeRollId];
+  Roll activeRoll;
+  Persistency::readRoll(m_app.m_activeRollId, activeRoll);
 
   if (activeRoll.manufacturer() == RollManufacturer::None) {
     m_roll.setManufacturer(RollManufacturer::Fuji);
@@ -663,11 +671,7 @@ void EditRollState::onClickButtonA(int t)
 
 void EditRollState::onClickButtonB(int t)
 {
-  auto& activeRoll = m_app.m_rolls[m_app.m_activeRollId];
-  activeRoll.setManufacturer(m_roll.manufacturer());
-  activeRoll.setIso(m_roll.iso());
-
-  Persistency::saveRoll(m_app.m_activeRollId, activeRoll);
+  Persistency::saveRoll(m_app.m_activeRollId, m_roll);
 
   m_app.m_state->deactivate();
   m_app.m_listState.setIsFrameTarget(false);
@@ -787,31 +791,35 @@ EditFrameState::~EditFrameState()
 void EditFrameState::activate()
 {
   auto& display = Controls::instance().display;
+  auto& meter = Controls::instance().meter;
 
   display.clear();
 
-  auto& activeRoll = m_app.m_rolls[m_app.m_activeRollId];
-  auto& activeFrame = m_app.m_frames[m_app.m_activeFrameId];
+  meter.takeReading();
 
-  m_roll.setManufacturer(activeRoll.manufacturer());
-  m_roll.setIso(activeRoll.iso());
+  Persistency::readRoll(m_app.m_activeRollId, m_roll);
+  Persistency::readFrame(m_app.m_activeRollId, m_app.m_activeFrameId, m_frame);
 
-  if (activeFrame.aperture() == ApertureValue::None) {
+  if (m_frame.aperture() == ApertureValue::None) {
     m_frame.setAperture(ApertureValue::_8);
-  } else {
-    m_frame.setAperture(activeFrame.aperture());
   }
 
-  if (activeFrame.shutter() == ShutterSpeed::None) {
+  if (m_frame.shutter() == ShutterSpeed::None) {
     m_frame.setShutter(ShutterSpeed::_125);
-  } else {
-    m_frame.setShutter(activeFrame.shutter());
   }
+
+  if (m_frame.focal() == FocalLength::None) {
+    m_frame.setFocal(FocalLength::_50);
+  }
+
+  m_editFocal = false;
 
   updateSettingsExposure();
   drawTitle();
+  drawSeparators();
   drawAperture();
   drawShutter();
+  drawFocal();
   // drawEV();
   drawScale();
   drawReading();
@@ -833,19 +841,17 @@ void EditFrameState::onClickButtonA(int t)
 
 void EditFrameState::onClickButtonB(int t)
 {
-  auto& activeFrame = m_app.m_frames[App::frameIndex(m_app.m_activeRollId, m_app.m_activeFrameId)];
-  activeFrame.setAperture(m_frame.aperture());
-  activeFrame.setShutter(m_frame.shutter());
-
-  Persistency::saveFrame(m_app.m_activeRollId, m_app.m_activeFrameId, activeFrame);
+  Persistency::saveFrame(m_app.m_activeRollId, m_app.m_activeFrameId, m_frame);
 
   // Upon saving go to the next frame in the roll, if it's empty
   {
     uint8_t nextFrameId = m_app.m_activeFrameId + 1;
     if (nextFrameId < N_FRAMES_PER_ROLL) {
-      auto& frame = m_app.m_frames[App::frameIndex(m_app.m_activeRollId, nextFrameId)];
-      if (frame.aperture() == ApertureValue::None) {
+      Frame nextFrame;
+      Persistency::readFrame(m_app.m_activeRollId, nextFrameId, nextFrame);
+      if (nextFrame.aperture() == ApertureValue::None) {
         m_app.m_activeFrameId = nextFrameId;
+
         // Give a subtle feedback to the user that the frame was saved
         auto& display = Controls::instance().display;
         display.fillRectangle(0, 0, display.width(), TEXT_HEIGHT, &Display::inversePainter);
@@ -869,33 +875,41 @@ void EditFrameState::onClickButtonB(int t)
 void EditFrameState::onLongpressButtonA(int t)
 {
   auto& meter = Controls::instance().meter;
-  meter.setMode(MeterMode::Single);
+  meter.takeReading();
 }
 
 void EditFrameState::onLongpressButtonB(int t)
 {
-  auto& meter = Controls::instance().meter;
-  meter.setMode(MeterMode::Continuous);
+  m_editFocal = !m_editFocal;
+  drawFocal();
 }
 
 void EditFrameState::onRightRotaryA(int t)
 {
-  changeAperture(true);
+  changeShutter(true);
 }
 
 void EditFrameState::onLeftRotaryA(int t)
 {
-  changeAperture(false);
+  changeShutter(false);
 }
 
 void EditFrameState::onRightRotaryB(int t)
 {
-  changeShutter(true);
+  if (m_editFocal) {
+    changeFocal(true);
+  } else {
+    changeAperture(true);
+  }
 }
 
 void EditFrameState::onLeftRotaryB(int t)
 {
-  changeShutter(false);
+  if (m_editFocal) {
+    changeFocal(false);
+  } else {
+    changeAperture(false);
+  }
 }
 
 void EditFrameState::onClickFlash(int t)
@@ -935,21 +949,35 @@ void EditFrameState::drawTitle()
   display.drawHLine(0, TEXT_HEIGHT + MARGIN, display.width());
 }
 
+void EditFrameState::drawSeparators()
+{
+  auto& display = Controls::instance().display;
+
+  const uint8_t y0 = TITLE_HEIGHT + MARGIN * 2;
+  const uint8_t y1 = y0 + 3 * TEXT_HEIGHT + MARGIN;
+
+  display.drawVLine(49, y0, y1);
+  display.drawVLine(90, y0, y1);
+}
+
 void EditFrameState::drawAperture()
 {
   auto& display = Controls::instance().display;
 
-  uint8_t x = 0;
+  const uint8_t HALF_WIDTH = 71;
+
+  uint8_t x = HALF_WIDTH - 6;
   uint8_t y = TITLE_HEIGHT + MARGIN * 2;
 
-  display.print(x, y, F("Aperture"));
+  display.print(x, y, F("f/"));
 
   char label[4];
   apertureValueAsString(m_frame.aperture(), label, 4);
 
+  x = HALF_WIDTH - 6 * strlen(label);
   y += TEXT_HEIGHT + MARGIN;
 
-  display.printEmpty(x, y, 3, &Display::blackPainter, 2, 2);
+  display.printEmpty(HALF_WIDTH - 18, y, 3, &Display::blackPainter, 2, 2);
   display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
 }
 
@@ -957,7 +985,7 @@ void EditFrameState::drawShutter()
 {
   auto& display = Controls::instance().display;
 
-  uint8_t x = display.width() - 42;
+  uint8_t x = 0;
   uint8_t y = TITLE_HEIGHT + MARGIN * 2;
 
   display.print(x, y, F("Shutter"));
@@ -965,10 +993,36 @@ void EditFrameState::drawShutter()
   char label[5];
   shutterSpeedAsString(m_frame.shutter(), label, 5);
 
-  x = display.width() - 12 * strlen(label);
   y += TEXT_HEIGHT + MARGIN;
 
-  display.printEmpty(display.width() - 12 * 4, y, 4, &Display::blackPainter, 2, 2);
+  display.printEmpty(0, y, 4, &Display::blackPainter, 2, 2);
+  display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
+}
+
+void EditFrameState::drawFocal()
+{
+  auto& display = Controls::instance().display;
+
+  uint8_t x = display.width() - 24 + 1;
+  uint8_t y = TITLE_HEIGHT + MARGIN * 2;
+
+  Display::Painter color = &Display::whitePainter;
+  Display::Painter bg = &Display::blackPainter;
+
+  if (m_editFocal) {
+    color = &Display::blackPainter;
+    bg = &Display::whitePainter;
+  }
+
+  display.print(x, y, F("Lens"), color, bg);
+
+  char label[4];
+  focalLengthAsString(m_frame.focal(), label, 4);
+
+  x = display.width() - 12 * strlen(label) + 2;
+  y += TEXT_HEIGHT + MARGIN;
+
+  display.printEmpty(display.width() - 12 * 3 + 2, y, 3, &Display::blackPainter, 2, 2);
   display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
 }
 
@@ -1076,6 +1130,23 @@ void EditFrameState::changeShutter(bool increase)
   }
 }
 
+void EditFrameState::changeFocal(bool increase)
+{
+  auto focal = m_frame.focal();
+
+  if (increase) {
+    if (focal < FocalLength::Other) {
+      m_frame.setFocal((FocalLength)(1 + (int)focal));
+      drawFocal();
+    }
+  } else {
+    if (focal > FocalLength::_20) {
+      m_frame.setFocal((FocalLength)((int)focal - 1));
+      drawFocal();
+    }
+  }
+}
+
 void EditFrameState::updateSettingsExposure()
 {
   m_settingsExposure = cameraSettingsToExposureValue(m_frame.shutter(), m_frame.aperture(), m_roll.iso());
@@ -1110,12 +1181,14 @@ void EditModalState::activate()
   char title[22];
 
   if (m_isFrameTarget) {
-    strncpy_P(title, (const char*)F("Frame"), 22);
-    auto& frame = m_app.m_frames[App::frameIndex(m_app.m_activeRollId, m_app.m_activeFrameId)];
+    strncpy_P(title, PSTR("Frame"), 22);
+    Frame frame;
+    Persistency::readFrame(m_app.m_activeRollId, m_app.m_activeFrameId, frame);
     frame.asString(m_app.m_activeFrameId, title + 5, 17);
   } else {
-    strncpy_P(title, (const char*)F("Roll"), 22);
-    auto& roll = m_app.m_rolls[m_app.m_activeRollId];
+    strncpy_P(title, PSTR("Roll"), 22);
+    Roll roll;
+    Persistency::readRoll(m_app.m_activeRollId, roll);
     roll.asString(m_app.m_activeRollId, title + 4, 18);
   }
 
@@ -1160,26 +1233,25 @@ void EditModalState::onClickButtonB(int t)
 
   } else if (selectedAction.type == ActionType::Delete) {
 
-    Roll emptyRoll;
-    Frame emptyFrame;
-
     m_app.m_state->deactivate();
+
+    Roll emptyRoll;
+    emptyRoll.setManufacturer(RollManufacturer::None);
+    emptyRoll.setIso(ISOValue::None);
+
+    Frame emptyFrame;
+    emptyFrame.setAperture(ApertureValue::None);
+    emptyFrame.setShutter(ShutterSpeed::None);
+    emptyFrame.setFocal(FocalLength::None);
+
     if (m_isFrameTarget) {
-      auto& frame = m_app.m_frames[App::frameIndex(m_app.m_activeRollId, m_app.m_activeFrameId)];
-      frame.setAperture(ApertureValue::None);
-      frame.setShutter(ShutterSpeed::None);
-      Persistency::saveFrame(m_app.m_activeRollId, m_app.m_activeFrameId, frame);
+      Persistency::saveFrame(m_app.m_activeRollId, m_app.m_activeFrameId, emptyFrame);
     } else {
-      auto& roll = m_app.m_rolls[m_app.m_activeRollId];
-      roll.setManufacturer(RollManufacturer::None);
-      roll.setIso(ISOValue::None);
-      Persistency::saveRoll(m_app.m_activeRollId, roll);
+      Roll emptyRoll;
+      Persistency::saveRoll(m_app.m_activeRollId, emptyRoll);
 
       for (uint8_t i = 0; i < N_FRAMES_PER_ROLL; ++i) {
-        auto& frame = m_app.m_frames[App::frameIndex(m_app.m_activeRollId, i)];
-        frame.setAperture(ApertureValue::None);
-        frame.setShutter(ShutterSpeed::None);
-        Persistency::saveFrame(m_app.m_activeRollId, i, frame);
+        Persistency::saveFrame(m_app.m_activeRollId, i, emptyFrame);
       }
     }
 

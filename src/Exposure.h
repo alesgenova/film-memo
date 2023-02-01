@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-enum class ShutterSpeed {
+enum class ShutterSpeed : uint8_t {
   None,
   // _1,
   _2,
@@ -21,7 +21,7 @@ enum class ShutterSpeed {
 
 
 
-enum class ApertureValue {
+enum class ApertureValue : uint8_t {
   None,
   _1_4,
   _2,
@@ -35,7 +35,7 @@ enum class ApertureValue {
   // _32
 };
 
-enum class ISOValue {
+enum class ISOValue : uint8_t {
   None,
   // _50,
   _100,
