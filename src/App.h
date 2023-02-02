@@ -11,6 +11,8 @@
 
 #if __MEMO
 #include "ListView.h"
+#include "MeterView.h"
+#include "CameraSettingsView.h"
 #endif
 
 class App {
@@ -29,19 +31,20 @@ protected:
 
 #if __DEBUG
   DebugAppState m_debugState;
-#elif __METER
-  LightMeterState m_meterState;
 #elif __MEMO
   ListState m_listState;
   EditRollState m_editRollState;
   EditFrameState m_editFrameState;
   EditModalState m_editModalState;
   AboutState m_aboutState;
+  LightMeterState m_meterState;
 
   uint8_t m_activeRollId = 0;
   uint8_t m_activeFrameId = 0;
 
   ListView m_listView;
+  MeterView m_meterView;
+  CameraSettingsView m_cameraSettingsView;
 #endif
 
   AppState* m_state;

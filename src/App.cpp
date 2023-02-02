@@ -7,15 +7,13 @@ App::App()
 #if __DEBUG
   : m_debugState(*this)
   , m_state(&m_debugState)
-#elif __METER
-  : m_meterState(*this)
-  , m_state(&m_meterState)
 #elif __MEMO
   : m_listState(*this)
   , m_editRollState(*this)
   , m_editFrameState(*this)
   , m_editModalState(*this)
   , m_aboutState(*this)
+  , m_meterState(*this)
   , m_state(&m_listState)
 #endif
 {}

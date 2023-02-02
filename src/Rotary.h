@@ -10,7 +10,7 @@ class PinStream;
 class Rotary {
 public:
   Rotary(PinStream& pinStream, uint8_t aMask, uint8_t bMask, bool pullup);
-  virtual ~Rotary();
+  ~Rotary();
 
   void process(int t);
 

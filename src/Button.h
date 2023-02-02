@@ -10,7 +10,7 @@ class PinStream;
 class Button {
 public:
   Button(PinStream& pinStream, bool pullup);
-  virtual ~Button();
+  ~Button();
 
   void process(int t);
 

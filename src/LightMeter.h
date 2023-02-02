@@ -15,7 +15,7 @@ enum class MeterMode {
 class LightMeter {
 public:
   LightMeter(uint8_t analogPin);
-  virtual ~LightMeter();
+  ~LightMeter();
 
   void process(int t);
 
