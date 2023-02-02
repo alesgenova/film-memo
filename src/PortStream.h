@@ -16,7 +16,7 @@ const uint8_t MAX_LISTENERS = 8;
 class PortStream {
 public:
   PortStream(uint8_t portMask, uint8_t portRegister, volatile uint8_t& activePinRegister);
-  virtual ~PortStream();
+  ~PortStream();
 
   volatile uint8_t& activePinRegister();
 

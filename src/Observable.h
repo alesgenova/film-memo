@@ -13,7 +13,7 @@ public:
   };
 
   Observable();
-  virtual ~Observable();
+  ~Observable();
 
   void publish(const T& event);
 

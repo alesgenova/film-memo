@@ -197,13 +197,9 @@ protected:
   void changeFocal(bool increase);
 
   void drawTitle();
-  void drawSeparators();
   void drawAperture();
   void drawShutter();
   void drawFocal();
-  // void drawEV();
-  void drawScale();
-  void drawReading();
 
   void updateSettingsExposure();
 
@@ -288,12 +284,10 @@ public:
   virtual void onMeterReading(int value) override;
 
 protected:
+  void drawTitle();
   void drawAperture();
   void drawShutter();
   void drawISO();
-  void drawEV();
-  void drawScale();
-  void drawReading();
 
   void changeAperture(bool increase);
   void changeShutter(bool increase);

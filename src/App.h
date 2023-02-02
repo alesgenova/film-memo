@@ -11,6 +11,8 @@
 
 #if __MEMO
 #include "ListView.h"
+#include "MeterView.h"
+#include "CameraSettingsView.h"
 #endif
 
 class App {
@@ -41,6 +43,8 @@ protected:
   uint8_t m_activeFrameId = 0;
 
   ListView m_listView;
+  MeterView m_meterView;
+  CameraSettingsView m_cameraSettingsView;
 #endif
 
   AppState* m_state;

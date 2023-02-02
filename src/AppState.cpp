@@ -537,6 +537,7 @@ void EditFrameState::activate()
 
   display.clear();
 
+  meter.setMode(MeterMode::Single);
   meter.takeReading();
 
   Persistency::readRoll(m_app.m_activeRollId, m_roll);
@@ -556,15 +557,16 @@ void EditFrameState::activate()
 
   m_editFocal = false;
 
+  m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 2);
+
   updateSettingsExposure();
   drawTitle();
-  drawSeparators();
   drawAperture();
   drawShutter();
   drawFocal();
-  // drawEV();
-  drawScale();
-  drawReading();
+
+  uint8_t bounds[4] = {0, 42, display.width(), 20};
+  m_app.m_meterView.setBounds(bounds);
 }
 
 void EditFrameState::deactivate()
@@ -667,9 +669,8 @@ void EditFrameState::onLongpressFlash(int t)
 void EditFrameState::onMeterReading(int value)
 {
   m_meterExposure = meterValueToExposureValue(value);
-  
-  // drawEV();
-  drawReading();
+
+  m_app.m_meterView.setReading(m_meterExposure - m_settingsExposure);
 }
 
 void EditFrameState::drawTitle()
@@ -691,147 +692,34 @@ void EditFrameState::drawTitle()
   display.drawHLine(0, TEXT_HEIGHT + MARGIN, display.width());
 }
 
-void EditFrameState::drawSeparators()
-{
-  auto& display = Controls::instance().display;
-
-  const uint8_t y0 = TITLE_HEIGHT + MARGIN * 2;
-  const uint8_t y1 = y0 + 3 * TEXT_HEIGHT + MARGIN;
-
-  display.drawVLine(49, y0, y1);
-  display.drawVLine(90, y0, y1);
-}
-
 void EditFrameState::drawAperture()
 {
-  auto& display = Controls::instance().display;
-
-  const uint8_t HALF_WIDTH = 71;
-
-  uint8_t x = HALF_WIDTH - 6;
-  uint8_t y = TITLE_HEIGHT + MARGIN * 2;
-
-  display.print(x, y, F("f/"));
+  m_app.m_cameraSettingsView.setLabel(1, "f/");
 
   char label[4];
   apertureValueAsString(m_frame.aperture(), label, 4);
 
-  x = HALF_WIDTH - 6 * strlen(label);
-  y += TEXT_HEIGHT + MARGIN;
-
-  display.printEmpty(HALF_WIDTH - 18, y, 3, &Display::blackPainter, 2, 2);
-  display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
+  m_app.m_cameraSettingsView.setValue(1, label);
 }
 
 void EditFrameState::drawShutter()
 {
-  auto& display = Controls::instance().display;
-
-  uint8_t x = 0;
-  uint8_t y = TITLE_HEIGHT + MARGIN * 2;
-
-  display.print(x, y, F("Shutter"));
+  m_app.m_cameraSettingsView.setLabel(0, "Shutt");
 
   char label[5];
   shutterSpeedAsString(m_frame.shutter(), label, 5);
 
-  y += TEXT_HEIGHT + MARGIN;
-
-  display.printEmpty(0, y, 4, &Display::blackPainter, 2, 2);
-  display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
+  m_app.m_cameraSettingsView.setValue(0, label);
 }
 
 void EditFrameState::drawFocal()
 {
-  auto& display = Controls::instance().display;
-
-  uint8_t x = display.width() - 24 + 1;
-  uint8_t y = TITLE_HEIGHT + MARGIN * 2;
-
-  Display::Painter color = &Display::whitePainter;
-  Display::Painter bg = &Display::blackPainter;
-
-  if (m_editFocal) {
-    color = &Display::blackPainter;
-    bg = &Display::whitePainter;
-  }
-
-  display.print(x, y, F("Lens"), color, bg);
+  m_app.m_cameraSettingsView.setLabel(2, "Lens", m_editFocal);
 
   char label[4];
   focalLengthAsString(m_frame.focal(), label, 4);
 
-  x = display.width() - 12 * strlen(label) + 2;
-  y += TEXT_HEIGHT + MARGIN;
-
-  display.printEmpty(display.width() - 12 * 3 + 2, y, 3, &Display::blackPainter, 2, 2);
-  display.print(x, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
-}
-
-// void EditFrameState::drawEV()
-// {
-//   auto& display = Controls::instance().display;
-
-//   display.setCursor(116, 20);
-//   display.print("EV");
-//   display.setCursor(116,30);
-//   display.print("  ");
-//   display.setCursor(116,30);
-//   display.print(int(round(m_meterExposure)));
-
-//   display.display();
-// }
-
-void EditFrameState::drawScale()
-{
-  auto& display = Controls::instance().display;
-
-  const uint8_t Y = 50;
-  const uint8_t PADDING = 8;
-  const uint8_t PIXELS_PER_EV = (128 - PADDING * 2) / 6;
-  const uint8_t TICK_SIZE = 3;
-
-  display.drawHLine(PADDING, Y, PADDING + 6 * PIXELS_PER_EV);
-
-  for (uint8_t i = 0; i < 7; ++i) {
-    display.drawVLine(PADDING + i * PIXELS_PER_EV, Y - TICK_SIZE, Y + TICK_SIZE);
-
-    uint8_t x = i * PIXELS_PER_EV;
-    uint8_t y = Y + TICK_SIZE + 2;
-
-    auto delta = i - 3;
-
-    if (delta == 0) {
-      display.printEmpty(x, y, 1);
-      x += 8;
-    } else if (delta > 0) {
-      display.print(x, y, "+");
-      x += 8;
-    }
-
-    display.print(x, y, i - 3);
-  }
-}
-
-void EditFrameState::drawReading()
-{
-  auto& display = Controls::instance().display;
-
-  const int Y = 50;
-  const int PADDING = 8;
-  const int PIXELS_PER_EV = (128 - PADDING * 2) / 6;
-  const int TICK_SIZE = 3;
-
-  float exposure_diff = m_meterExposure - m_settingsExposure;
-
-  exposure_diff = min(3, exposure_diff);
-  exposure_diff = max(-3, exposure_diff);
-
-  const uint8_t centerX = PADDING + (exposure_diff + 3) * PIXELS_PER_EV;
-  const uint8_t centerY = Y - TICK_SIZE - 3;
-
-  display.fillRectangle(0, Y - TICK_SIZE - 5, display.width(), Y - TICK_SIZE, &Display::blackPainter);
-  display.fillRectangle(centerX - 2, centerY - 2, centerX + 2, centerY + 2);
+  m_app.m_cameraSettingsView.setValue(2, label);
 }
 
 void EditFrameState::changeAperture(bool increase)
@@ -892,7 +780,7 @@ void EditFrameState::changeFocal(bool increase)
 void EditFrameState::updateSettingsExposure()
 {
   m_settingsExposure = cameraSettingsToExposureValue(m_frame.shutter(), m_frame.aperture(), m_roll.iso());
-  drawReading();
+  m_app.m_meterView.setReading(m_meterExposure - m_settingsExposure);
 }
 
 // EditModalState
@@ -1069,19 +957,30 @@ LightMeterState::~LightMeterState()
 
 void LightMeterState::activate()
 {
-  Controls::instance().display.clear();
+  auto& display = Controls::instance().display;
+
+  display.clear();
+
+  m_editISO = false;
+
+  m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 2);
 
   updateSettingsExposure();
+  drawTitle();
   drawAperture();
   drawShutter();
-  drawEV();
   drawISO();
-  drawScale();
-  drawReading();
+
+  uint8_t bounds[4] = {0, 42, display.width(), 20};
+  m_app.m_meterView.setBounds(bounds);
 }
 
 void LightMeterState::deactivate()
-{}
+{
+  auto& meter = Controls::instance().meter;
+  meter.setMode(MeterMode::Single);
+  meter.takeReading();
+}
 
 void LightMeterState::onClickButtonA(int t)
 {
@@ -1112,12 +1011,12 @@ void LightMeterState::onLongpressButtonB(int t)
 
 void LightMeterState::onRightRotaryA(int t)
 {
-  changeAperture(true);
+  changeShutter(true);
 }
 
 void LightMeterState::onLeftRotaryA(int t)
 {
-  changeAperture(false);
+  changeShutter(false);
 }
 
 void LightMeterState::onRightRotaryB(int t)
@@ -1125,7 +1024,7 @@ void LightMeterState::onRightRotaryB(int t)
   if (m_editISO) {
     changeISO(true);
   } else {
-    changeShutter(true);
+    changeAperture(true);
   }
 }
 
@@ -1134,127 +1033,53 @@ void LightMeterState::onLeftRotaryB(int t)
   if (m_editISO) {
     changeISO(false);
   } else {
-    changeShutter(false);
+    changeAperture(false);
   }
 }
 
 void LightMeterState::onMeterReading(int value)
 {
   m_meterExposure = meterValueToExposureValue(value);
-  
-  drawEV();
-  drawReading();
+
+  m_app.m_meterView.setReading(m_meterExposure - m_settingsExposure);
+}
+
+void LightMeterState::drawTitle()
+{
+  auto& display = Controls::instance().display;
+
+  display.print(0, 0, F("Light Meter"));
+  display.drawHLine(0, TEXT_HEIGHT + MARGIN, display.width());
 }
 
 void LightMeterState::drawAperture()
 {
-  auto& display = Controls::instance().display;
-
-  display.print(0, 0, F("Aperture"));
+  m_app.m_cameraSettingsView.setLabel(1, "f/");
 
   char label[4];
   apertureValueAsString(m_aperture, label, 4);
 
-  display.printEmpty(0, 10, 4);
-  display.print(0, 10, label);
+  m_app.m_cameraSettingsView.setValue(1, label);
 }
 
 void LightMeterState::drawShutter()
 {
-  auto& display = Controls::instance().display;
-
-  display.print(0, 20, F("Shutter"));
+  m_app.m_cameraSettingsView.setLabel(0, "Shutt");
 
   char label[5];
   shutterSpeedAsString(m_shutter, label, 5);
 
-  display.printEmpty(0, 30, 5);
-  display.print(0, 30, label);
+  m_app.m_cameraSettingsView.setValue(0, label);
 }
 
 void LightMeterState::drawISO()
 {
-  auto& display = Controls::instance().display;
-
-  Display::Painter color = &Display::whitePainter;
-  Display::Painter bg = &Display::blackPainter;
-
-  if (m_editISO) {
-    color = &Display::blackPainter;
-    bg = &Display::whitePainter;
-  }
-
-  display.print(110, 0, F("ISO"), color, bg);
+  m_app.m_cameraSettingsView.setLabel(2, "ISO", m_editISO);
 
   char label[5];
   isoValueAsString(m_iso, label, 5);
 
-  display.printEmpty(100, 10, 5);
-  display.print(100, 10, label);  
-}
-
-void LightMeterState::drawEV()
-{
-  auto& display = Controls::instance().display;
-
-  display.print(116, 20, F("EV"));
-
-  char label[4];
-  itoa(int(round(m_meterExposure)), label, 10);
-  display.printEmpty(116, 30, 4);
-  display.print(116, 30, label);
-}
-
-void LightMeterState::drawScale()
-{
-  auto& display = Controls::instance().display;
-
-  const uint8_t Y = 50;
-  const uint8_t PADDING = 8;
-  const uint8_t PIXELS_PER_EV = (128 - PADDING * 2) / 6;
-  const uint8_t TICK_SIZE = 3;
-
-  display.drawHLine(PADDING, Y, PADDING + 6 * PIXELS_PER_EV);
-
-  for (uint8_t i = 0; i < 7; ++i) {
-    display.drawVLine(PADDING + i * PIXELS_PER_EV, Y - TICK_SIZE, Y + TICK_SIZE);
-
-    uint8_t x = i * PIXELS_PER_EV;
-    uint8_t y = Y + TICK_SIZE + 2;
-
-    auto delta = i - 3;
-
-    if (delta == 0) {
-      display.printEmpty(x, y, 1);
-      x += 8;
-    } else if (delta > 0) {
-      display.print(x, y, "+");
-      x += 8;
-    }
-
-    display.print(x, y, i - 3);
-  }
-}
-
-void LightMeterState::drawReading()
-{
-  auto& display = Controls::instance().display;
-
-  const int Y = 50;
-  const int PADDING = 8;
-  const int PIXELS_PER_EV = (128 - PADDING * 2) / 6;
-  const int TICK_SIZE = 3;
-
-  float exposure_diff = m_meterExposure - m_settingsExposure;
-
-  exposure_diff = min(3, exposure_diff);
-  exposure_diff = max(-3, exposure_diff);
-
-  const uint8_t centerX = PADDING + (exposure_diff + 3) * PIXELS_PER_EV;
-  const uint8_t centerY = Y - TICK_SIZE - 3;
-
-  display.fillRectangle(0, Y - TICK_SIZE - 5, display.width(), Y - TICK_SIZE, &Display::blackPainter);
-  display.fillRectangle(centerX - 2, centerY - 2, centerX + 2, centerY + 2);
+  m_app.m_cameraSettingsView.setValue(2, label);
 }
 
 void LightMeterState::changeAperture(bool increase)
@@ -1311,7 +1136,7 @@ void LightMeterState::changeISO(bool increase)
 void LightMeterState::updateSettingsExposure()
 {
   m_settingsExposure = cameraSettingsToExposureValue(m_shutter, m_aperture, m_iso);
-  drawReading();
+  m_app.m_meterView.setReading(m_meterExposure - m_settingsExposure);
 }
 
 #endif
