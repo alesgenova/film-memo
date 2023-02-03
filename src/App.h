@@ -23,7 +23,7 @@ public:
   App& operator=(const App&) = delete;
 
   void initialize();
-  void process(int t) {}
+  void process(const uint32_t& t) {}
 
 protected:
   App();
@@ -38,9 +38,13 @@ protected:
   EditModalState m_editModalState;
   AboutState m_aboutState;
   LightMeterState m_meterState;
+  SettingsState m_settingsState;
+  CalibrateState m_calibrateState;
 
   uint8_t m_activeRollId = 0;
   uint8_t m_activeFrameId = 0;
+
+  bool m_autoShutter;
 
   ListView m_listView;
   MeterView m_meterView;
@@ -51,20 +55,20 @@ protected:
 
   static App* unique_instance;
 
-  static void onClickButtonA(void* self, const int& t);
-  static void onLongpressButtonA(void* self, const int& t);
+  static void onClickButtonA(void* self, const uint32_t& t);
+  static void onLongpressButtonA(void* self, const uint32_t& t);
 
-  static void onClickButtonB(void* self, const int& t);
-  static void onLongpressButtonB(void* self, const int& t);
+  static void onClickButtonB(void* self, const uint32_t& t);
+  static void onLongpressButtonB(void* self, const uint32_t& t);
 
-  static void onRightRotaryA(void* self, const int& t);
-  static void onLeftRotaryA(void* self, const int& t);
+  static void onRightRotaryA(void* self, const uint32_t& t);
+  static void onLeftRotaryA(void* self, const uint32_t& t);
 
-  static void onRightRotaryB(void* self, const int& t);
-  static void onLeftRotaryB(void* self, const int& t);
+  static void onRightRotaryB(void* self, const uint32_t& t);
+  static void onLeftRotaryB(void* self, const uint32_t& t);
 
-  static void onClickFlash(void* self, const int& t);
-  static void onLongpressFlash(void* self, const int& t);
+  static void onDownFlash(void* self, const uint32_t& t);
+  static void onUpFlash(void* self, const uint32_t& t);
 
   static void onMeterReading(void* self, const int& value);
 
@@ -75,6 +79,8 @@ protected:
   friend class EditFrameState;
   friend class EditModalState;
   friend class AboutState;
+  friend class SettingsState;
+  friend class CalibrateState;
 };
 
 #endif

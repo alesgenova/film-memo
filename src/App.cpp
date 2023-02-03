@@ -14,6 +14,8 @@ App::App()
   , m_editModalState(*this)
   , m_aboutState(*this)
   , m_meterState(*this)
+  , m_settingsState(*this)
+  , m_calibrateState(*this)
   , m_state(&m_listState)
 #endif
 {}
@@ -47,12 +49,14 @@ void App::initialize()
   controls.rotaryB.rightObservable().addListener(this, &App::onRightRotaryB);
   controls.rotaryB.leftObservable().addListener(this, &App::onLeftRotaryB);
 
-  controls.flash.clickObservable().addListener(this, &App::onClickFlash);
-  controls.flash.longpressObservable().addListener(this, &App::onLongpressFlash);
-
   controls.meter.readingObservable().addListener(this, &App::onMeterReading);
 
+  controls.flash.downObservable().addListener(this, &App::onDownFlash);
+  controls.flash.upObservable().addListener(this, &App::onUpFlash);
+
 #if __MEMO
+  m_autoShutter = Persistency::readAutoShutter();
+
   m_listState.setIsFrameTarget(false);
   m_editModalState.setIsFrameTarget(false);
 #endif
@@ -60,74 +64,60 @@ void App::initialize()
   m_state->activate();
 }
 
-void App::onClickButtonA(void* _self, const int& t)
+void App::onClickButtonA(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onClickButtonA(t);
 }
 
-void App::onLongpressButtonA(void* _self, const int& t)
+void App::onLongpressButtonA(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onLongpressButtonA(t);
 }
 
-void App::onClickButtonB(void* _self, const int& t)
+void App::onClickButtonB(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onClickButtonB(t);
 }
 
-void App::onLongpressButtonB(void* _self, const int& t)
+void App::onLongpressButtonB(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onLongpressButtonB(t);
 }
 
-void App::onRightRotaryA(void* _self, const int& t)
+void App::onRightRotaryA(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onRightRotaryA(t);
 }
 
-void App::onLeftRotaryA(void* _self, const int& t)
+void App::onLeftRotaryA(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onLeftRotaryA(t);
 }
 
-void App::onRightRotaryB(void* _self, const int& t)
+void App::onRightRotaryB(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onRightRotaryB(t);
 }
 
-void App::onLeftRotaryB(void* _self, const int& t)
+void App::onLeftRotaryB(void* _self, const uint32_t& t)
 {
   auto self = static_cast<App*>(_self);
 
   self->m_state->onLeftRotaryB(t);
-}
-
-void App::onClickFlash(void* _self, const int& t)
-{
-  auto self = static_cast<App*>(_self);
-
-  self->m_state->onClickFlash(t);
-}
-
-void App::onLongpressFlash(void* _self, const int& t)
-{
-  auto self = static_cast<App*>(_self);
-
-  self->m_state->onLongpressFlash(t);
 }
 
 void App::onMeterReading(void* _self, const int& value)
@@ -135,4 +125,18 @@ void App::onMeterReading(void* _self, const int& value)
   auto self = static_cast<App*>(_self);
 
   self->m_state->onMeterReading(value);
+}
+
+void App::onDownFlash(void* _self, const uint32_t& t)
+{
+  auto self = static_cast<App*>(_self);
+
+  self->m_state->onDownFlash(t);
+}
+
+void App::onUpFlash(void* _self, const uint32_t& t)
+{
+  auto self = static_cast<App*>(_self);
+
+  self->m_state->onUpFlash(t);
 }

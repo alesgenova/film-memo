@@ -36,7 +36,7 @@ ISR(PCINT0_vect) {
 }
 
 void loop() {
-  int t = millis();
+  uint32_t t = micros();
   Controls::instance().process(t);
   App::instance().process(t);
 }

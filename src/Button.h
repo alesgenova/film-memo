@@ -12,29 +12,29 @@ public:
   Button(PinStream& pinStream, bool pullup);
   ~Button();
 
-  void process(int t);
+  void process(uint32_t t);
 
-  Observable<int, MAX_OBSERVABLE_LISTENERS>& downObservable();
-  Observable<int, MAX_OBSERVABLE_LISTENERS>& upObservable();
-  Observable<int, MAX_OBSERVABLE_LISTENERS>& clickObservable();
-  Observable<int, MAX_OBSERVABLE_LISTENERS>& longpressObservable();
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& downObservable();
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& upObservable();
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& clickObservable();
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& longpressObservable();
   
 protected:
   static void processPinEvent(void* self, const IOEvent&);
 
-  void processAction(uint8_t action, int time);
+  void processAction(uint8_t action, uint32_t time);
 
   PinStream& m_pinStream;
   bool m_pullup;
 
   uint8_t m_state;
 
-  int m_lastTransitionTime = 0;
+  uint32_t m_lastDownTime = 0;
 
-  Observable<int, MAX_OBSERVABLE_LISTENERS> m_downObservable;
-  Observable<int, MAX_OBSERVABLE_LISTENERS> m_upObservable;
-  Observable<int, MAX_OBSERVABLE_LISTENERS> m_clickObservable;
-  Observable<int, MAX_OBSERVABLE_LISTENERS> m_longpressObservable;
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS> m_downObservable;
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS> m_upObservable;
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS> m_clickObservable;
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS> m_longpressObservable;
 };
 
 #endif

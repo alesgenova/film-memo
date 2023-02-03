@@ -12,10 +12,10 @@ public:
   Rotary(PinStream& pinStream, uint8_t aMask, uint8_t bMask, bool pullup);
   ~Rotary();
 
-  void process(int t);
+  void process(uint32_t t);
 
-  Observable<int, MAX_OBSERVABLE_LISTENERS>& rightObservable();
-  Observable<int, MAX_OBSERVABLE_LISTENERS>& leftObservable();
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& rightObservable();
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& leftObservable();
   
 protected:
   static void processPinEvent(void* self, const IOEvent&);
@@ -28,8 +28,8 @@ protected:
 
   bool m_pullup;
 
-  Observable<int, MAX_OBSERVABLE_LISTENERS> m_rightObservable;
-  Observable<int, MAX_OBSERVABLE_LISTENERS> m_leftObservable;
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS> m_rightObservable;
+  Observable<uint32_t, MAX_OBSERVABLE_LISTENERS> m_leftObservable;
 };
 
 #endif

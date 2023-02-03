@@ -5,6 +5,10 @@
 #include "App.h"
 #include "Controls.h"
 
+#if __DEV
+#include <Arduino.h>
+#endif
+
 #if __MEMO
 
 #include <Arduino.h>
@@ -45,19 +49,19 @@ void DebugAppState::deactivate()
   Controls::instance().display.clear();
 }
 
-void DebugAppState::onClickButtonA(int t)
+void DebugAppState::onClickButtonA(uint32_t t)
 {
   m_buttonA = !m_buttonA;
   drawButtonA();
 }
 
-void DebugAppState::onLongpressButtonA(int t)
+void DebugAppState::onLongpressButtonA(uint32_t t)
 {
   m_buttonA = !m_buttonA;
   drawButtonA();
 }
 
-void DebugAppState::onClickButtonB(int t)
+void DebugAppState::onClickButtonB(uint32_t t)
 {
   m_buttonB = !m_buttonB;
   drawButtonB();
@@ -68,7 +72,7 @@ void DebugAppState::onClickButtonB(int t)
   }
 }
 
-void DebugAppState::onLongpressButtonB(int t)
+void DebugAppState::onLongpressButtonB(uint32_t t)
 {
   m_buttonB = !m_buttonB;
   drawButtonB();
@@ -81,7 +85,7 @@ void DebugAppState::onLongpressButtonB(int t)
   }
 }
 
-void DebugAppState::onRightRotaryA(int t)
+void DebugAppState::onRightRotaryA(uint32_t t)
 {
   if (m_rotaryA == 16) {
     return;
@@ -91,7 +95,7 @@ void DebugAppState::onRightRotaryA(int t)
   drawRotaryA();
 }
 
-void DebugAppState::onLeftRotaryA(int t)
+void DebugAppState::onLeftRotaryA(uint32_t t)
 {
   if (m_rotaryA == 0) {
     return;
@@ -101,7 +105,7 @@ void DebugAppState::onLeftRotaryA(int t)
   drawRotaryA();
 }
 
-void DebugAppState::onRightRotaryB(int t)
+void DebugAppState::onRightRotaryB(uint32_t t)
 {
   if (m_rotaryB == 16) {
     return;
@@ -111,7 +115,7 @@ void DebugAppState::onRightRotaryB(int t)
   drawRotaryB();
 }
 
-void DebugAppState::onLeftRotaryB(int t)
+void DebugAppState::onLeftRotaryB(uint32_t t)
 {
   if (m_rotaryB == 0) {
     return;
@@ -121,10 +125,10 @@ void DebugAppState::onLeftRotaryB(int t)
   drawRotaryB();
 }
 
-void DebugAppState::onClickFlash(int t)
+void DebugAppState::onDownFlash(uint32_t t)
 {}
 
-void DebugAppState::onLongpressFlash(int t)
+void DebugAppState::onUpFlash(uint32_t t)
 {}
 
 void DebugAppState::onMeterReading(int value)
@@ -248,7 +252,7 @@ void ListState::setIsFrameTarget(bool isFrameTarget)
   m_isFrameTarget = isFrameTarget;
 }
 
-void ListState::onClickButtonA(int t)
+void ListState::onClickButtonA(uint32_t t)
 {
   if (m_isFrameTarget) {
     m_app.m_state->deactivate();
@@ -262,16 +266,16 @@ void ListState::onClickButtonA(int t)
   }
 }
 
-void ListState::onLongpressButtonA(int t)
+void ListState::onLongpressButtonA(uint32_t t)
 {
   if (!m_isFrameTarget) {
     m_app.m_state->deactivate();
-    m_app.m_state = &m_app.m_aboutState;
+    m_app.m_state = &m_app.m_settingsState;
     m_app.m_state->activate();
   }
 }
 
-void ListState::onClickButtonB(int t)
+void ListState::onClickButtonB(uint32_t t)
 {
   if (m_isFrameTarget) {
     m_app.m_activeFrameId = m_app.m_listView.selected();
@@ -300,7 +304,7 @@ void ListState::onClickButtonB(int t)
   }
 }
 
-void ListState::onLongpressButtonB(int t)
+void ListState::onLongpressButtonB(uint32_t t)
 {
   auto activeId = m_app.m_listView.selected();
 
@@ -330,22 +334,22 @@ void ListState::onLongpressButtonB(int t)
   }
 }
 
-void ListState::onRightRotaryA(int t)
+void ListState::onRightRotaryA(uint32_t t)
 {
   m_app.m_listView.selectNext();
 }
 
-void ListState::onLeftRotaryA(int t)
+void ListState::onLeftRotaryA(uint32_t t)
 {
   m_app.m_listView.selectPrev();
 }
 
-void ListState::onRightRotaryB(int t)
+void ListState::onRightRotaryB(uint32_t t)
 {
   m_app.m_listView.selectNext(10);
 }
 
-void ListState::onLeftRotaryB(int t)
+void ListState::onLeftRotaryB(uint32_t t)
 {
   m_app.m_listView.selectPrev(10);
 }
@@ -403,7 +407,7 @@ void EditRollState::activate()
 void EditRollState::deactivate()
 {}
 
-void EditRollState::onClickButtonA(int t)
+void EditRollState::onClickButtonA(uint32_t t)
 {
   m_app.m_state->deactivate();
   m_app.m_listState.setIsFrameTarget(false);
@@ -411,7 +415,7 @@ void EditRollState::onClickButtonA(int t)
   m_app.m_state->activate();
 }
 
-void EditRollState::onClickButtonB(int t)
+void EditRollState::onClickButtonB(uint32_t t)
 {
   Persistency::saveRoll(m_app.m_activeRollId, m_roll);
 
@@ -421,22 +425,22 @@ void EditRollState::onClickButtonB(int t)
   m_app.m_state->activate();
 }
 
-void EditRollState::onRightRotaryA(int t)
+void EditRollState::onRightRotaryA(uint32_t t)
 {
   changeManufacturer(true);
 }
 
-void EditRollState::onLeftRotaryA(int t)
+void EditRollState::onLeftRotaryA(uint32_t t)
 {
   changeManufacturer(false);
 }
 
-void EditRollState::onRightRotaryB(int t)
+void EditRollState::onRightRotaryB(uint32_t t)
 {
   changeISO(true);
 }
 
-void EditRollState::onLeftRotaryB(int t)
+void EditRollState::onLeftRotaryB(uint32_t t)
 {
   changeISO(false);
 }
@@ -446,12 +450,12 @@ void EditRollState::changeManufacturer(bool increase)
   auto manufacturer = m_roll.manufacturer();
   if (increase) {
     if (manufacturer < RollManufacturer::Other) {
-      m_roll.setManufacturer((RollManufacturer)(1 + (int)manufacturer));
+      m_roll.setManufacturer((RollManufacturer)(1 + (uint8_t)manufacturer));
       drawManufacturer();
     }
   } else {
     if (manufacturer > RollManufacturer::Fuji) {
-      m_roll.setManufacturer((RollManufacturer)((int)manufacturer - 1));
+      m_roll.setManufacturer((RollManufacturer)((uint8_t)manufacturer - 1));
       drawManufacturer();
     }
   }
@@ -463,12 +467,12 @@ void EditRollState::changeISO(bool increase)
 
   if (increase) {
     if (iso < ISOValue::_1600) {
-      m_roll.setIso((ISOValue)(1 + (int)iso));
+      m_roll.setIso((ISOValue)(1 + (uint8_t)iso));
       drawISO();
     }
   } else {
     if (iso > ISOValue::_100) {
-      m_roll.setIso((ISOValue)((int)iso - 1));
+      m_roll.setIso((ISOValue)((uint8_t)iso - 1));
       drawISO();
     }
   }
@@ -575,7 +579,7 @@ void EditFrameState::deactivate()
   meter.setMode(MeterMode::Single);
 }
 
-void EditFrameState::onClickButtonA(int t)
+void EditFrameState::onClickButtonA(uint32_t t)
 {
   m_app.m_state->deactivate();
   m_app.m_listState.setIsFrameTarget(true);
@@ -583,7 +587,7 @@ void EditFrameState::onClickButtonA(int t)
   m_app.m_state->activate();
 }
 
-void EditFrameState::onClickButtonB(int t)
+void EditFrameState::onClickButtonB(uint32_t t)
 {
   Persistency::saveFrame(m_app.m_activeRollId, m_app.m_activeFrameId, m_frame);
 
@@ -616,29 +620,29 @@ void EditFrameState::onClickButtonB(int t)
   m_app.m_state->activate();
 }
 
-void EditFrameState::onLongpressButtonA(int t)
+void EditFrameState::onLongpressButtonA(uint32_t t)
 {
   auto& meter = Controls::instance().meter;
   meter.takeReading();
 }
 
-void EditFrameState::onLongpressButtonB(int t)
+void EditFrameState::onLongpressButtonB(uint32_t t)
 {
   m_editFocal = !m_editFocal;
   drawFocal();
 }
 
-void EditFrameState::onRightRotaryA(int t)
+void EditFrameState::onRightRotaryA(uint32_t t)
 {
   changeShutter(true);
 }
 
-void EditFrameState::onLeftRotaryA(int t)
+void EditFrameState::onLeftRotaryA(uint32_t t)
 {
   changeShutter(false);
 }
 
-void EditFrameState::onRightRotaryB(int t)
+void EditFrameState::onRightRotaryB(uint32_t t)
 {
   if (m_editFocal) {
     changeFocal(true);
@@ -647,7 +651,7 @@ void EditFrameState::onRightRotaryB(int t)
   }
 }
 
-void EditFrameState::onLeftRotaryB(int t)
+void EditFrameState::onLeftRotaryB(uint32_t t)
 {
   if (m_editFocal) {
     changeFocal(false);
@@ -656,13 +660,36 @@ void EditFrameState::onLeftRotaryB(int t)
   }
 }
 
-void EditFrameState::onClickFlash(int t)
+void EditFrameState::onDownFlash(uint32_t t)
 {
-  onClickButtonB(t);
+  m_flashDownTime = t;
 }
 
-void EditFrameState::onLongpressFlash(int t)
+void EditFrameState::onUpFlash(uint32_t t)
 {
+  if (m_app.m_autoShutter) {
+    uint32_t elapsed = t - m_flashDownTime;
+
+    uint32_t minDiff = 0 - 1;
+    uint8_t minIdx;
+    uint32_t reference;
+    uint32_t diff;
+
+    for (uint8_t i = 0; i < 10; ++i) {
+      Persistency::readShutterCalibration(i, reference);
+
+      diff = min(reference - elapsed, elapsed - reference);
+
+      if (diff < minDiff) {
+        minDiff = diff;
+        minIdx = i;
+      }
+    }
+
+    m_frame.setShutter((ShutterSpeed)(minIdx + 1));
+    drawShutter();
+  }
+
   onClickButtonB(t);
 }
 
@@ -728,13 +755,13 @@ void EditFrameState::changeAperture(bool increase)
 
   if (increase) {
     if (aperture < ApertureValue::_22) {
-      m_frame.setAperture((ApertureValue)(1 + (int)aperture));
+      m_frame.setAperture((ApertureValue)(1 + (uint8_t)aperture));
       updateSettingsExposure();
       drawAperture();
     }
   } else {
     if (aperture > ApertureValue::_1_4) {
-      m_frame.setAperture((ApertureValue)((int)aperture - 1));
+      m_frame.setAperture((ApertureValue)((uint8_t)aperture - 1));
       updateSettingsExposure();
       drawAperture();
     }
@@ -747,13 +774,13 @@ void EditFrameState::changeShutter(bool increase)
 
   if (increase) {
     if (shutter < ShutterSpeed::_1000) {
-      m_frame.setShutter((ShutterSpeed)(1 + (int)shutter));
+      m_frame.setShutter((ShutterSpeed)(1 + (uint8_t)shutter));
       updateSettingsExposure();
       drawShutter();
     }
   } else {
     if (shutter > ShutterSpeed::_2) {
-      m_frame.setShutter((ShutterSpeed)((int)shutter - 1));
+      m_frame.setShutter((ShutterSpeed)((uint8_t)shutter - 1));
       updateSettingsExposure();
       drawShutter();
     }
@@ -766,12 +793,12 @@ void EditFrameState::changeFocal(bool increase)
 
   if (increase) {
     if (focal < FocalLength::Other) {
-      m_frame.setFocal((FocalLength)(1 + (int)focal));
+      m_frame.setFocal((FocalLength)(1 + (uint8_t)focal));
       drawFocal();
     }
   } else {
     if (focal > FocalLength::_20) {
-      m_frame.setFocal((FocalLength)((int)focal - 1));
+      m_frame.setFocal((FocalLength)((uint8_t)focal - 1));
       drawFocal();
     }
   }
@@ -839,7 +866,7 @@ void EditModalState::setIsFrameTarget(bool isFrameTarget)
   m_isFrameTarget = isFrameTarget;
 }
 
-void EditModalState::onClickButtonA(int t)
+void EditModalState::onClickButtonA(uint32_t t)
 {
   m_app.m_state->deactivate();
   m_app.m_listState.setIsFrameTarget(m_isFrameTarget);
@@ -847,7 +874,7 @@ void EditModalState::onClickButtonA(int t)
   m_app.m_state->activate();
 }
 
-void EditModalState::onClickButtonB(int t)
+void EditModalState::onClickButtonB(uint32_t t)
 {
   auto& selectedAction = m_actions[m_app.m_listView.selected()];
 
@@ -897,12 +924,12 @@ void EditModalState::onClickButtonB(int t)
   }
 }
 
-void EditModalState::onRightRotaryA(int t)
+void EditModalState::onRightRotaryA(uint32_t t)
 {
   m_app.m_listView.selectNext();
 }
 
-void EditModalState::onLeftRotaryA(int t)
+void EditModalState::onLeftRotaryA(uint32_t t)
 {
   m_app.m_listView.selectPrev();
 }
@@ -935,11 +962,10 @@ void AboutState::activate()
 void AboutState::deactivate()
 {}
 
-void AboutState::onClickButtonB(int t)
+void AboutState::onClickButtonA(uint32_t t)
 {
   m_app.m_state->deactivate();
-  m_app.m_listState.setIsFrameTarget(false);
-  m_app.m_state = &m_app.m_listState;
+  m_app.m_state = &m_app.m_settingsState;
   m_app.m_state->activate();
 }
 
@@ -982,20 +1008,20 @@ void LightMeterState::deactivate()
   meter.takeReading();
 }
 
-void LightMeterState::onClickButtonA(int t)
+void LightMeterState::onClickButtonA(uint32_t t)
 {
   auto& meter = Controls::instance().meter;
   meter.setMode(MeterMode::Single);
   meter.takeReading();
 }
 
-void LightMeterState::onLongpressButtonA(int t)
+void LightMeterState::onLongpressButtonA(uint32_t t)
 {
   auto& meter = Controls::instance().meter;
   meter.setMode(MeterMode::Continuous);
 }
 
-void LightMeterState::onClickButtonB(int t)
+void LightMeterState::onClickButtonB(uint32_t t)
 {
   m_app.m_state->deactivate();
   m_app.m_listState.setIsFrameTarget(false);
@@ -1003,23 +1029,23 @@ void LightMeterState::onClickButtonB(int t)
   m_app.m_state->activate();
 }
 
-void LightMeterState::onLongpressButtonB(int t)
+void LightMeterState::onLongpressButtonB(uint32_t t)
 {
   m_editISO = !m_editISO;
   drawISO();
 }
 
-void LightMeterState::onRightRotaryA(int t)
+void LightMeterState::onRightRotaryA(uint32_t t)
 {
   changeShutter(true);
 }
 
-void LightMeterState::onLeftRotaryA(int t)
+void LightMeterState::onLeftRotaryA(uint32_t t)
 {
   changeShutter(false);
 }
 
-void LightMeterState::onRightRotaryB(int t)
+void LightMeterState::onRightRotaryB(uint32_t t)
 {
   if (m_editISO) {
     changeISO(true);
@@ -1028,7 +1054,7 @@ void LightMeterState::onRightRotaryB(int t)
   }
 }
 
-void LightMeterState::onLeftRotaryB(int t)
+void LightMeterState::onLeftRotaryB(uint32_t t)
 {
   if (m_editISO) {
     changeISO(false);
@@ -1086,13 +1112,13 @@ void LightMeterState::changeAperture(bool increase)
 {
   if (increase) {
     if (m_aperture < ApertureValue::_22) {
-      m_aperture = (ApertureValue)(1 + (int)m_aperture);
+      m_aperture = (ApertureValue)(1 + (uint8_t)m_aperture);
       updateSettingsExposure();
       drawAperture();
     }
   } else {
     if (m_aperture > ApertureValue::_1_4) {
-      m_aperture = (ApertureValue)((int)m_aperture - 1);
+      m_aperture = (ApertureValue)((uint8_t)m_aperture - 1);
       updateSettingsExposure();
       drawAperture();
     }
@@ -1103,13 +1129,13 @@ void LightMeterState::changeShutter(bool increase)
 {
   if (increase) {
     if (m_shutter < ShutterSpeed::_1000) {
-      m_shutter = (ShutterSpeed)(1 + (int)m_shutter);
+      m_shutter = (ShutterSpeed)(1 + (uint8_t)m_shutter);
       updateSettingsExposure();
       drawShutter();
     }
   } else {
     if (m_shutter > ShutterSpeed::_2) {
-      m_shutter = (ShutterSpeed)((int)m_shutter - 1);
+      m_shutter = (ShutterSpeed)((uint8_t)m_shutter - 1);
       updateSettingsExposure();
       drawShutter();
     }
@@ -1120,13 +1146,13 @@ void LightMeterState::changeISO(bool increase)
 {
   if (increase) {
     if (m_iso < ISOValue::_1600) {
-      m_iso = (ISOValue)(1 + (int)m_iso);
+      m_iso = (ISOValue)(1 + (uint8_t)m_iso);
       updateSettingsExposure();
       drawISO();
     }
   } else {
     if (m_iso > ISOValue::_100) {
-      m_iso = (ISOValue)((int)m_iso - 1);
+      m_iso = (ISOValue)((uint8_t)m_iso - 1);
       updateSettingsExposure();
       drawISO();
     }
@@ -1137,6 +1163,257 @@ void LightMeterState::updateSettingsExposure()
 {
   m_settingsExposure = cameraSettingsToExposureValue(m_shutter, m_aperture, m_iso);
   m_app.m_meterView.setReading(m_meterExposure - m_settingsExposure);
+}
+
+// SettingsState
+
+SettingsState::SettingsState(App& app)
+  : AppState(app)
+{
+  m_actions[0].type = ActionType::EnableHotShoeShutter;
+  m_actions[1].type = ActionType::CalibrateHotShoeShutter;
+  m_actions[2].type = ActionType::About;
+}
+
+SettingsState::~SettingsState()
+{}
+
+void SettingsState::activate()
+{
+  auto& display = Controls::instance().display;
+
+  display.clear();
+
+  const uint8_t padding = 6;
+  uint8_t bounds[4] = {0, 0, 109, 64};
+
+  display.drawHLine(109, 9, 127);
+
+  m_app.m_listView.setBounds(bounds);
+  char title[22];
+
+  m_app.m_listView.setTitle("Settings");
+
+  ListView::ItemGetter itemGetter;
+  itemGetter.boundObj = this;
+  itemGetter.getter = &SettingsState::itemGetter;
+
+  m_app.m_listView.setItems(itemGetter, 3);
+
+  drawAutoShutter();
+}
+
+void SettingsState::deactivate()
+{}
+
+void SettingsState::onClickButtonA(uint32_t t)
+{
+  m_app.m_state->deactivate();
+  m_app.m_listState.setIsFrameTarget(false);
+  m_app.m_state = &m_app.m_listState;
+  m_app.m_state->activate();
+}
+
+void SettingsState::onClickButtonB(uint32_t t)
+{
+  Action selectedAction = m_actions[m_app.m_listView.selected()];
+
+  switch (selectedAction.type) {
+    case ActionType::About: {
+      m_app.m_state->deactivate();
+      m_app.m_state = &m_app.m_aboutState;
+      m_app.m_state->activate();
+      return;
+    }
+    case ActionType::EnableHotShoeShutter: {
+      changeAutoShutter();
+      return;
+    }
+    case ActionType::CalibrateHotShoeShutter: {
+      m_app.m_state->deactivate();
+      m_app.m_state = &m_app.m_calibrateState;
+      m_app.m_state->activate();
+      return;
+    }
+    default: {
+      return;
+    }
+  }
+}
+
+void SettingsState::onRightRotaryA(uint32_t t)
+{
+  m_app.m_listView.selectNext();
+}
+
+void SettingsState::onLeftRotaryA(uint32_t t)
+{
+  m_app.m_listView.selectPrev();
+}
+
+void SettingsState::onRightRotaryB(uint32_t t)
+{}
+
+void SettingsState::onLeftRotaryB(uint32_t t)
+{}
+
+void SettingsState::drawTitle()
+{}
+
+void SettingsState::drawAutoShutter()
+{
+  auto& display = Controls::instance().display;
+
+  const uint8_t x0 = 119;
+  const uint8_t y0 = 11;
+  const uint8_t w = 8;
+
+  display.drawRectangle(x0, y0, x0 + w, y0 + w);
+
+  Display::Painter fill;
+
+  if (m_app.m_autoShutter) {
+    fill = &Display::whitePainter;
+  } else {
+    fill = &Display::blackPainter;
+  }
+
+  display.fillRectangle(x0 + 2, y0 + 2, x0 + w - 2, y0 + w - 2, fill);
+}
+
+void SettingsState::changeAutoShutter()
+{
+  m_app.m_autoShutter = !m_app.m_autoShutter;
+  Persistency::writeAutoShutter(m_app.m_autoShutter);
+  drawAutoShutter();
+}
+
+void SettingsState::itemGetter(void* _self, uint8_t i, char* s, uint8_t n)
+{
+  auto self = static_cast<SettingsState*>(_self);
+  self->m_actions[i].asString(i, s, n);
+}
+
+// CalibrateState
+
+CalibrateState::CalibrateState(App& app)
+  : AppState(app)
+{}
+
+CalibrateState::~CalibrateState()
+{}
+
+void CalibrateState::activate()
+{
+  auto& display = Controls::instance().display;
+  display.clear();
+
+  m_shutter = ShutterSpeed::_2;
+  m_cumulatedTime = 0;
+  m_currRepetition = 0;
+
+  drawTitle();
+  drawShutter();
+  drawProgress();
+}
+
+void CalibrateState::deactivate()
+{}
+
+void CalibrateState::onClickButtonA(uint32_t t)
+{
+  m_app.m_state->deactivate();
+  m_app.m_state = &m_app.m_settingsState;
+  m_app.m_state->activate();
+}
+
+void CalibrateState::onClickButtonB(uint32_t t)
+{
+  m_cumulatedTime = 0;
+  nextShutter();
+  drawProgress();
+}
+
+void CalibrateState::nextShutter()
+{
+  uint8_t index = shutterToIndex(m_shutter);
+  Persistency::writeShutterCalibration(index, m_cumulatedTime / 3);
+
+  if (m_shutter == ShutterSpeed::_1000) {
+    onClickButtonA(0);
+  } else {
+    m_shutter = (ShutterSpeed)(1 + (uint8_t)m_shutter);
+    m_cumulatedTime = 0;
+    m_currRepetition = 0;
+    drawShutter();
+  }
+}
+
+void CalibrateState::onDownFlash(uint32_t t)
+{
+  m_downTime = t;
+}
+
+void CalibrateState::onUpFlash(uint32_t t)
+{
+  m_cumulatedTime += (t - m_downTime);
+
+  ++m_currRepetition;
+
+  if (m_currRepetition == 3) {
+    nextShutter();
+  }
+
+  drawProgress();
+}
+
+void CalibrateState::drawTitle()
+{
+  auto& display = Controls::instance().display;
+
+  display.print(0, 0, F("Calibrate Shutter"));
+
+  display.drawHLine(0, 10, display.width() - 1);
+
+  display.print(0, 16, F("Fire shutter 3 times:"));
+}
+
+void CalibrateState::drawShutter()
+{
+  auto& display = Controls::instance().display;
+
+  display.printEmpty(0, 36, 4, &Display::blackPainter, 2, 2);
+
+  char label[5];
+  shutterSpeedAsString(m_shutter, label, 5);
+
+  display.print(0, 36, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
+}
+
+void CalibrateState::drawProgress()
+{
+  auto& display = Controls::instance().display;
+
+  const uint8_t x0 = 2;
+  const uint8_t x1 = display.width() - 1 - x0;
+  const uint8_t y0 = 54;
+  const uint8_t h = 8;
+  const uint8_t y1 = y0 + h - 1;
+  const uint8_t pixelPerStep = 4;
+
+  display.drawRectangle(x0, y0, x1, y1);
+
+  uint8_t index = shutterToIndex(m_shutter);
+  const uint8_t step = 3 * index + m_currRepetition;
+  const uint8_t progressX = step * pixelPerStep;
+
+  display.fillRectangle(x0 + 2, y0 + 2, x0 + 2 + progressX, y1 - 2);
+  display.fillRectangle(x0 + 2 + progressX, y0 + 2, x1 - 2, y1 - 2, &Display::blackPainter);
+}
+
+uint8_t CalibrateState::shutterToIndex(ShutterSpeed shutter)
+{
+  return (uint8_t)shutter - 1;
 }
 
 #endif
