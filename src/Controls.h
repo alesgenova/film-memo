@@ -19,7 +19,7 @@ public:
 
   void initialize();
 
-  void process(int t);
+  void process(uint32_t t);
   
   static void onPortInterrupt();
   static void onFlashInterrupt();

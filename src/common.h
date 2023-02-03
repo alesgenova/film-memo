@@ -4,7 +4,7 @@
 #include "stdint.h"
 
 struct IOEvent {
-  int time = 0;
+  uint32_t time = 0;
   uint8_t state = 0;
 };
 

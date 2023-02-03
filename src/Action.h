@@ -3,10 +3,16 @@
 
 #include <stdint.h>
 
-enum class ActionType {
+enum class ActionType : uint8_t {
+  // General actions
   Cancel,
+  // Modify entity actions
   Edit,
-  Delete
+  Delete,
+  // Settings menu actions
+  EnableHotShoeShutter,
+  CalibrateHotShoeShutter,
+  About
 };
 
 class Action {

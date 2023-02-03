@@ -13,7 +13,7 @@ LightMeter::LightMeter(uint8_t analogPin)
 LightMeter::~LightMeter()
 {}
 
-void LightMeter::process(int t)
+void LightMeter::process(uint32_t t)
 {
   if (m_mode == MeterMode::Continuous) {
     int value = analogRead(m_analogPin);

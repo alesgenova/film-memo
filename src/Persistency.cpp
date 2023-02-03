@@ -9,8 +9,36 @@ namespace Persistency {
 // Reserve a few bites in the EEPROM for future persisten settings
 const uint8_t SETTINGS_BYTES = 64;
 
-const uint8_t ROLL_BYTES = sizeof(Roll);
-const uint8_t FRAME_BYTES = sizeof(Frame);
+const uint16_t AUTO_SHUTTER_BYTE = 0;
+const uint16_t SHUTTER_CALIBRATION_BYTE = 1;
+const uint16_t SHUTTER_BYTES = sizeof(uint32_t);
+
+const uint16_t ROLL_BYTES = sizeof(Roll);
+const uint16_t FRAME_BYTES = sizeof(Frame);
+
+bool readAutoShutter()
+{
+  return EEPROM.read(AUTO_SHUTTER_BYTE);
+}
+
+void writeAutoShutter(bool enable)
+{
+  EEPROM.update(AUTO_SHUTTER_BYTE, enable);
+}
+
+void readShutterCalibration(uint8_t shutterId, uint32_t& value)
+{
+  int address = SHUTTER_CALIBRATION_BYTE + shutterId * SHUTTER_BYTES;
+
+  EEPROM.get(address, value);
+}
+
+void writeShutterCalibration(uint8_t shutterId, const uint32_t& value)
+{
+  int address = SHUTTER_CALIBRATION_BYTE + shutterId * SHUTTER_BYTES;
+
+  EEPROM.put(address, value);
+}
 
 void readRoll(uint8_t rollId, Roll& roll)
 {

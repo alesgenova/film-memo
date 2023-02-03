@@ -49,7 +49,7 @@ void Controls::initialize()
   attachInterrupt(FLASH_INTERRUPT, &Controls::onFlashInterrupt, CHANGE);
 }
 
-void Controls::process(int t)
+void Controls::process(uint32_t t)
 {
   buttonA.process(t);
   buttonB.process(t);

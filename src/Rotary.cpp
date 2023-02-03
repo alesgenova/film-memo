@@ -42,17 +42,17 @@ Rotary::Rotary(PinStream& pinStream, uint8_t aMask, uint8_t bMask, bool pullup)
 Rotary::~Rotary()
 {}
 
-Observable<int, MAX_OBSERVABLE_LISTENERS>& Rotary::rightObservable()
+Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& Rotary::rightObservable()
 {
   return m_rightObservable;
 }
 
-Observable<int, MAX_OBSERVABLE_LISTENERS>& Rotary::leftObservable()
+Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& Rotary::leftObservable()
 {
   return m_leftObservable;
 }
 
-void Rotary::process(int t)
+void Rotary::process(uint32_t t)
 {
   m_pinStream.processEvents(this, &Rotary::processPinEvent);
 }

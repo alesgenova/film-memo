@@ -13,7 +13,7 @@ PinStreamINT::~PinStreamINT()
 void PinStreamINT::onChange()
 {
   IOEvent event;
-  event.time = millis();
+  event.time = micros();
   event.state = digitalRead(m_pin);
 
   pushEvent(event);

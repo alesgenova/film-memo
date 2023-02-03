@@ -40,7 +40,7 @@ void PortStream::onChange()
 {
   IOEvent event;
   uint8_t r = (*portInputRegister(m_portRegister));
-  event.time = millis();
+  event.time = micros();
   event.state = r;
 
   pushEvent(event);

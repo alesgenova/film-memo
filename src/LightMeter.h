@@ -17,7 +17,7 @@ public:
   LightMeter(uint8_t analogPin);
   ~LightMeter();
 
-  void process(int t);
+  void process(uint32_t t);
 
   Observable<int, MAX_OBSERVABLE_LISTENERS>& readingObservable();
 

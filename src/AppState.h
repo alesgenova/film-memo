@@ -25,20 +25,20 @@ public:
   virtual void activate() {}
   virtual void deactivate() {}
 
-  virtual void onClickButtonA(int t) {}
-  virtual void onLongpressButtonA(int t) {}
+  virtual void onClickButtonA(uint32_t t) {}
+  virtual void onLongpressButtonA(uint32_t t) {}
 
-  virtual void onClickButtonB(int t) {}
-  virtual void onLongpressButtonB(int t) {}
+  virtual void onClickButtonB(uint32_t t) {}
+  virtual void onLongpressButtonB(uint32_t t) {}
 
-  virtual void onRightRotaryA(int t) {}
-  virtual void onLeftRotaryA(int t) {}
+  virtual void onRightRotaryA(uint32_t t) {}
+  virtual void onLeftRotaryA(uint32_t t) {}
 
-  virtual void onRightRotaryB(int t) {}
-  virtual void onLeftRotaryB(int t) {}
+  virtual void onRightRotaryB(uint32_t t) {}
+  virtual void onLeftRotaryB(uint32_t t) {}
 
-  virtual void onClickFlash(int t) {}
-  virtual void onLongpressFlash(int t) {}
+  virtual void onDownFlash(uint32_t t) {}
+  virtual void onUpFlash(uint32_t t) {}
 
   virtual void onMeterReading(int value) {}
 
@@ -61,20 +61,20 @@ public:
   virtual void activate() override;
   virtual void deactivate() override;
 
-  virtual void onClickButtonA(int t) override;
-  virtual void onLongpressButtonA(int t) override;
+  virtual void onClickButtonA(uint32_t t) override;
+  virtual void onLongpressButtonA(uint32_t t) override;
 
-  virtual void onClickButtonB(int t) override;
-  virtual void onLongpressButtonB(int t) override;
+  virtual void onClickButtonB(uint32_t t) override;
+  virtual void onLongpressButtonB(uint32_t t) override;
 
-  virtual void onRightRotaryA(int t) override;
-  virtual void onLeftRotaryA(int t) override;
+  virtual void onRightRotaryA(uint32_t t) override;
+  virtual void onLeftRotaryA(uint32_t t) override;
 
-  virtual void onRightRotaryB(int t) override;
-  virtual void onLeftRotaryB(int t) override;
+  virtual void onRightRotaryB(uint32_t t) override;
+  virtual void onLeftRotaryB(uint32_t t) override;
 
-  virtual void onClickFlash(int t) override;
-  virtual void onLongpressFlash(int t) override;
+  virtual void onDownFlash(uint32_t t) override;
+  virtual void onUpFlash(uint32_t t) override;
 
   virtual void onMeterReading(int value) override;
 
@@ -108,17 +108,17 @@ public:
 
   void setIsFrameTarget(bool isFrameTarget);
 
-  virtual void onClickButtonA(int t) override;
-  virtual void onLongpressButtonA(int t) override;
+  virtual void onClickButtonA(uint32_t t) override;
+  virtual void onLongpressButtonA(uint32_t t) override;
 
-  virtual void onClickButtonB(int t) override;
-  virtual void onLongpressButtonB(int t) override;
+  virtual void onClickButtonB(uint32_t t) override;
+  virtual void onLongpressButtonB(uint32_t t) override;
 
-  virtual void onRightRotaryA(int t) override;
-  virtual void onLeftRotaryA(int t) override;
+  virtual void onRightRotaryA(uint32_t t) override;
+  virtual void onLeftRotaryA(uint32_t t) override;
 
-  virtual void onRightRotaryB(int t) override;
-  virtual void onLeftRotaryB(int t) override;
+  virtual void onRightRotaryB(uint32_t t) override;
+  virtual void onLeftRotaryB(uint32_t t) override;
 
 protected:
   static void rollItemGetter(void* self, uint8_t i, char* s, uint8_t n);
@@ -140,15 +140,15 @@ public:
   virtual void activate() override;
   virtual void deactivate() override;
 
-  virtual void onClickButtonA(int t) override;
+  virtual void onClickButtonA(uint32_t t) override;
 
-  virtual void onClickButtonB(int t) override;
+  virtual void onClickButtonB(uint32_t t) override;
 
-  virtual void onRightRotaryA(int t) override;
-  virtual void onLeftRotaryA(int t) override;
+  virtual void onRightRotaryA(uint32_t t) override;
+  virtual void onLeftRotaryA(uint32_t t) override;
 
-  virtual void onRightRotaryB(int t) override;
-  virtual void onLeftRotaryB(int t) override;
+  virtual void onRightRotaryB(uint32_t t) override;
+  virtual void onLeftRotaryB(uint32_t t) override;
 
 protected:
   Roll m_roll;
@@ -174,20 +174,20 @@ public:
   virtual void activate() override;
   virtual void deactivate() override;
 
-  virtual void onClickButtonA(int t) override;
-  virtual void onLongpressButtonA(int t) override;
+  virtual void onClickButtonA(uint32_t t) override;
+  virtual void onLongpressButtonA(uint32_t t) override;
 
-  virtual void onClickButtonB(int t) override;
-  virtual void onLongpressButtonB(int t) override;
+  virtual void onClickButtonB(uint32_t t) override;
+  virtual void onLongpressButtonB(uint32_t t) override;
 
-  virtual void onRightRotaryA(int t) override;
-  virtual void onLeftRotaryA(int t) override;
+  virtual void onRightRotaryA(uint32_t t) override;
+  virtual void onLeftRotaryA(uint32_t t) override;
 
-  virtual void onRightRotaryB(int t) override;
-  virtual void onLeftRotaryB(int t) override;
+  virtual void onRightRotaryB(uint32_t t) override;
+  virtual void onLeftRotaryB(uint32_t t) override;
 
-  virtual void onClickFlash(int t) override;
-  virtual void onLongpressFlash(int t) override;
+  virtual void onDownFlash(uint32_t t) override;
+  virtual void onUpFlash(uint32_t t) override;
 
   virtual void onMeterReading(int value) override;
 
@@ -208,6 +208,7 @@ protected:
   float m_meterExposure = 10;
   float m_settingsExposure = 10;
   bool m_editFocal = false;
+  uint32_t m_flashDownTime = 0;
 };
 
 // EditModalState
@@ -225,17 +226,51 @@ public:
 
   void setIsFrameTarget(bool isFrameTarget);
 
-  virtual void onClickButtonA(int t) override;
+  virtual void onClickButtonA(uint32_t t) override;
 
-  virtual void onClickButtonB(int t) override;
+  virtual void onClickButtonB(uint32_t t) override;
 
-  virtual void onRightRotaryA(int t) override;
-  virtual void onLeftRotaryA(int t) override;
+  virtual void onRightRotaryA(uint32_t t) override;
+  virtual void onLeftRotaryA(uint32_t t) override;
 
 protected:
   static void itemGetter(void* self, uint8_t i, char* s, uint8_t n);
 
   bool m_isFrameTarget = false;
+
+  Action m_actions[3];
+};
+
+// SettingsState
+
+class SettingsState : public AppState {
+public:
+  SettingsState(App& app);
+  ~SettingsState();
+
+  SettingsState(const SettingsState&) = delete;
+  SettingsState& operator=(const SettingsState&) = delete;
+
+  virtual void activate() override;
+  virtual void deactivate() override;
+
+  virtual void onClickButtonA(uint32_t t) override;
+
+  virtual void onClickButtonB(uint32_t t) override;
+
+  virtual void onRightRotaryA(uint32_t t) override;
+  virtual void onLeftRotaryA(uint32_t t) override;
+
+  virtual void onRightRotaryB(uint32_t t) override;
+  virtual void onLeftRotaryB(uint32_t t) override;
+
+protected:
+  void drawTitle();
+  void drawAutoShutter();
+
+  void changeAutoShutter();
+
+  static void itemGetter(void* self, uint8_t i, char* s, uint8_t n);
 
   Action m_actions[3];
 };
@@ -253,7 +288,7 @@ public:
   virtual void activate() override;
   virtual void deactivate() override;
 
-  virtual void onClickButtonB(int t) override;
+  virtual void onClickButtonA(uint32_t t) override;
 };
 
 // LightMeterState
@@ -269,17 +304,17 @@ public:
   virtual void activate() override;
   virtual void deactivate() override;
 
-  virtual void onClickButtonA(int t) override;
-  virtual void onLongpressButtonA(int t) override;
+  virtual void onClickButtonA(uint32_t t) override;
+  virtual void onLongpressButtonA(uint32_t t) override;
 
-  virtual void onClickButtonB(int t) override;
-  virtual void onLongpressButtonB(int t) override;
+  virtual void onClickButtonB(uint32_t t) override;
+  virtual void onLongpressButtonB(uint32_t t) override;
 
-  virtual void onRightRotaryA(int t) override;
-  virtual void onLeftRotaryA(int t) override;
+  virtual void onRightRotaryA(uint32_t t) override;
+  virtual void onLeftRotaryA(uint32_t t) override;
 
-  virtual void onRightRotaryB(int t) override;
-  virtual void onLeftRotaryB(int t) override;
+  virtual void onRightRotaryB(uint32_t t) override;
+  virtual void onLeftRotaryB(uint32_t t) override;
 
   virtual void onMeterReading(int value) override;
 
@@ -302,6 +337,42 @@ protected:
   bool m_editISO = false;
 };
 
+// CalibrateState
+
+class CalibrateState : public AppState {
+public:
+  CalibrateState(App& app);
+  ~CalibrateState();
+
+  CalibrateState(const CalibrateState&) = delete;
+  CalibrateState& operator=(const CalibrateState&) = delete;
+
+  virtual void activate() override;
+  virtual void deactivate() override;
+
+  virtual void onClickButtonA(uint32_t t) override;
+
+  virtual void onClickButtonB(uint32_t t) override;
+
+  virtual void onDownFlash(uint32_t t) override;
+
+  virtual void onUpFlash(uint32_t t) override;
+
+protected:
+  void drawTitle();
+  void drawShutter();
+  void drawProgress();
+
+  void nextShutter();
+
+  static uint8_t shutterToIndex(ShutterSpeed shutter);
+
+  ShutterSpeed m_shutter = ShutterSpeed::_2;
+
+  uint8_t m_currRepetition = 0;
+  uint32_t m_cumulatedTime = 0;
+  uint32_t m_downTime = 0;
+};
 
 #endif
 

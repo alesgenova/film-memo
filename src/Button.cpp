@@ -19,21 +19,20 @@ const uint8_t LONGPRESS_STATE = 0b010;
 // Transition Actions
 const uint8_t BTN_UP = 0;
 const uint8_t BTN_DOWN = 1;
-const uint8_t TICK = 2;
-const uint8_t TICK_LONG = 3;
-const uint8_t BTN_UP_LONG = 4;
+const uint8_t TICK_LONG = 2;
+const uint8_t BTN_UP_LONG = 3;
 
-const int LONGPRESS_THR = 1000;
+const uint32_t LONGPRESS_THR = 1000000;
 
 const uint8_t STATE_MASK  = 0b00000111;
 const uint8_t EVENT_MASK  = 0b11111000;
 
 // row is current state, col is incoming pin state
-const uint8_t TRANSITION_TABLE[3 * 5] PROGMEM = {
-                       //   BTN_UP,                            BTN_DOWN,                  TICK,            TICK_LONG,                         BTN_UP_LONG
-  /* UP_STATE          */   UP_STATE,                          DOWN_STATE | DOWN_EVENT,   UP_STATE,        UP_STATE ,                         UP_STATE,
-  /* DOWN_STATE        */   UP_STATE | UP_EVENT | CLICK_EVENT, DOWN_STATE,                DOWN_STATE,      LONGPRESS_STATE | LONGPRESS_EVENT, UP_STATE | UP_EVENT | LONGPRESS_EVENT,
-  /* LONGPRESS_STATE   */   UP_STATE | UP_EVENT,               LONGPRESS_STATE,           LONGPRESS_STATE, LONGPRESS_STATE,                   UP_STATE | UP_EVENT
+const uint8_t TRANSITION_TABLE[3 * 4] PROGMEM = {
+                       //   BTN_UP,                            BTN_DOWN,                  TICK_LONG,                         BTN_UP_LONG
+  /* UP_STATE          */   UP_STATE,                          DOWN_STATE | DOWN_EVENT,   UP_STATE ,                         UP_STATE,
+  /* DOWN_STATE        */   UP_STATE | UP_EVENT | CLICK_EVENT, DOWN_STATE,                LONGPRESS_STATE | LONGPRESS_EVENT, UP_STATE | UP_EVENT | LONGPRESS_EVENT,
+  /* LONGPRESS_STATE   */   UP_STATE | UP_EVENT,               LONGPRESS_STATE,           LONGPRESS_STATE,                   UP_STATE | UP_EVENT
 };
 
 
@@ -46,39 +45,37 @@ Button::Button(PinStream& pinStream, bool pullup)
 Button::~Button()
 {}
 
-Observable<int, MAX_OBSERVABLE_LISTENERS>& Button::downObservable()
+Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& Button::downObservable()
 {
   return m_downObservable;
 }
 
-Observable<int, MAX_OBSERVABLE_LISTENERS>& Button::upObservable()
+Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& Button::upObservable()
 {
   return m_upObservable;
 }
 
-Observable<int, MAX_OBSERVABLE_LISTENERS>& Button::clickObservable()
+Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& Button::clickObservable()
 {
   return m_clickObservable;
 }
 
-Observable<int, MAX_OBSERVABLE_LISTENERS>& Button::longpressObservable()
+Observable<uint32_t, MAX_OBSERVABLE_LISTENERS>& Button::longpressObservable()
 {
   return m_longpressObservable;
 }
 
-void Button::process(int t)
+void Button::process(uint32_t t)
 {
-  m_pinStream.processEvents(this, &Button::processPinEvent);
-
   uint8_t action;
 
-  if (t - m_lastTransitionTime > LONGPRESS_THR) {
+  if ((m_state & STATE_MASK) == DOWN_STATE && t - m_lastDownTime > LONGPRESS_THR) {
     action = TICK_LONG;
-  } else {
-    action = TICK;
+
+    this->processAction(action, t);
   }
 
-  this->processAction(action, t);
+  m_pinStream.processEvents(this, &Button::processPinEvent);
 }
 
 void Button::processPinEvent(void* _self, const IOEvent& pinEvent)
@@ -91,7 +88,7 @@ void Button::processPinEvent(void* _self, const IOEvent& pinEvent)
 
   if (pressed) {
     action = BTN_DOWN;
-  } else if (pinEvent.time - self->m_lastTransitionTime > LONGPRESS_THR) {
+  } else if (pinEvent.time - self->m_lastDownTime > LONGPRESS_THR) {
     action = BTN_UP_LONG;
   } else {
     action = BTN_UP;
@@ -100,16 +97,16 @@ void Button::processPinEvent(void* _self, const IOEvent& pinEvent)
   self->processAction(action, pinEvent.time);
 }
 
-void Button::processAction(uint8_t action, int time)
+void Button::processAction(uint8_t action, uint32_t time)
 {
-  m_state = pgm_read_word_near(TRANSITION_TABLE + (m_state & STATE_MASK) * 5 + action);
+  m_state = pgm_read_word_near(TRANSITION_TABLE + (m_state & STATE_MASK) * 4 + action);
 
   uint8_t event = m_state & EVENT_MASK;
 
   if (event != NONE_EVENT) {
-    m_lastTransitionTime = time;
 
     if (event & DOWN_EVENT) {
+      m_lastDownTime = time;
       downObservable().publish(time);
     }
 
