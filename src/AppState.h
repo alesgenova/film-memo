@@ -265,14 +265,14 @@ public:
   virtual void onLeftRotaryB(uint32_t t) override;
 
 protected:
-  void drawTitle();
   void drawAutoShutter();
+  void drawMeterCalibration();
 
   void changeAutoShutter();
 
   static void itemGetter(void* self, uint8_t i, char* s, uint8_t n);
 
-  Action m_actions[3];
+  Action m_actions[4];
 };
 
 // AboutState

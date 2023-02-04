@@ -4,40 +4,33 @@
 
 LightMeter::LightMeter(uint8_t analogPin)
   : m_analogPin(analogPin)
-{
-  for (uint8_t i = 0; i < WINDOW_SIZE; ++i) {
-    m_values[i] = 0;
-  }
-}
+{}
 
 LightMeter::~LightMeter()
 {}
 
 void LightMeter::process(uint32_t t)
 {
-  if (m_mode == MeterMode::Continuous) {
+  // Make sure the reading stabilizes
+  if (t - m_lastProcessTime < 10000) {
+    return;
+  }
+
+  m_lastProcessTime = t;
+
+  if (m_valueIdx < WINDOW_SIZE) {
     int value = analogRead(m_analogPin);
-  
-    m_avgValue = m_avgValue - m_values[m_valueIdx] + value;
-    m_values[m_valueIdx] = value;
-
-    m_valueIdx = (m_valueIdx + 1) % WINDOW_SIZE;
-
-    m_readingObservable.publish(m_avgValue / WINDOW_SIZE);
-
-  } else if (m_mode == MeterMode::Single && m_valueIdx < WINDOW_SIZE) {
-    int value = analogRead(m_analogPin);
-  
     m_avgValue +=value;
-
     m_valueIdx += 1;
 
     if (m_valueIdx == WINDOW_SIZE) {
       m_readingObservable.publish(m_avgValue / WINDOW_SIZE);
-    }
+      m_avgValue = 0;
 
-  } else {
-    return;
+      if (m_mode == MeterMode::Continuous) {
+        m_valueIdx = 0;
+      }
+    }
   }
 }
 
@@ -54,12 +47,6 @@ MeterMode LightMeter::mode() const
 void LightMeter::setMode(MeterMode mode)
 {
   m_mode = mode;
-  m_valueIdx = 0;
-  m_avgValue = 0;
-}
-
-void LightMeter::takeReading()
-{
   m_valueIdx = 0;
   m_avgValue = 0;
 }

@@ -56,6 +56,7 @@ void App::initialize()
 
 #if __MEMO
   m_autoShutter = Persistency::readAutoShutter();
+  Persistency::readMeterCalibration(m_meterCalibration);
 
   m_listState.setIsFrameTarget(false);
   m_editModalState.setIsFrameTarget(false);

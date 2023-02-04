@@ -2,40 +2,49 @@
 
 #include <WString.h>
 
+#include "common_strings.h"
+
 void focalLengthAsString(FocalLength focal, char* s, uint8_t n)
 {
+  uint8_t value;
+
   switch(focal) {
     case FocalLength::_20 : {
-      strncpy_P(s, PSTR("20"), n);
+      value = 20;
       break;
     } case FocalLength::_24 : {
-      strncpy_P(s, PSTR("24"), n);
+      value = 24;
       break;
     } case FocalLength::_28 : {
-      strncpy_P(s, PSTR("28"), n);
+      value = 28;
       break;
     } case FocalLength::_35 : {
-      strncpy_P(s, PSTR("35"), n);
+      value = 35;
       break;
     } case FocalLength::_40 : {
-      strncpy_P(s, PSTR("40"), n);
+      value = 40;
       break;
     } case FocalLength::_50 : {
-      strncpy_P(s, PSTR("50"), n);
+      value = 50;
       break;
     } case FocalLength::_85 : {
-      strncpy_P(s, PSTR("85"), n);
+      value = 85;
       break;
     } case FocalLength::_135 : {
-      strncpy_P(s, PSTR("135"), n);
+      value = 135;
       break;
-    } case FocalLength::None : {
-      strncpy_P(s, PSTR("None"), n);
-      break;
+    } case FocalLength::Other : {
+      strncpy_P(s, PSTR("Other"), n);
+      s[n-1] = '\0';
+      return;
     } default: {
-      strncpy_P(s, PSTR("Unk"), n);
+      strncpy_P(s, UNKNOWN_STR, n);
+      s[n-1] = '\0';
+      return;
     }
   }
+
+  itoa(value, s, 10);
 
   s[n-1] = '\0';
 }

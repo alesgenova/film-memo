@@ -2,6 +2,8 @@
 
 #include <WString.h>
 
+#include "common_strings.h"
+
 void Action::asString(uint8_t i, char* s, uint8_t n)
 {
   switch (this->type) {
@@ -25,12 +27,16 @@ void Action::asString(uint8_t i, char* s, uint8_t n)
       strncpy_P(s, PSTR("Calib. shutter"), n);
       break;
     }
+    case ActionType::CalibrateMeter: {
+      strncpy_P(s, PSTR("Meter const."), n);
+      break;
+    }
     case ActionType::About: {
       strncpy_P(s, PSTR("About"), n);
       break;
     }
     default: {
-      strncpy_P(s, PSTR("Unk"), n);
+      strncpy_P(s, UNKNOWN_STR, n);
       break;
     }
   }
