@@ -394,6 +394,9 @@ void EditRollState::activate()
     m_roll.setIso(ISOValue::_400);
   }
 
+  m_app.m_cameraSettingsView.setColumns(2);
+  m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 4);
+
   drawTitle();
   drawManufacturer();
   drawISO();
@@ -482,36 +485,22 @@ void EditRollState::drawTitle()
 
 void EditRollState::drawManufacturer()
 {
-  auto& display = Controls::instance().display;
-
-  uint8_t y = TITLE_HEIGHT + MARGIN * 2;
-
-  display.print(0, y, F("Brand"));
+  m_app.m_cameraSettingsView.setLabel(0, "Brand");
 
   char label[6];
   rollManufacturerAsString(m_roll.manufacturer(), label, 6);
 
-  y += TEXT_HEIGHT + MARGIN;
-
-  display.printEmpty(0, y, 6, &Display::blackPainter, 2, 2);
-  display.print(0, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
+  m_app.m_cameraSettingsView.setValue(0, label);
 }
 
 void EditRollState::drawISO()
 {
-  auto& display = Controls::instance().display;
-
-  uint8_t y = TITLE_HEIGHT + TEXT_HEIGHT * 3 + MARGIN * 6;
-
-  display.print(0, y, F("ISO"));
+  m_app.m_cameraSettingsView.setLabel(1, "ISO");
 
   char label[5];
   isoValueAsString(m_roll.iso(), label, 5);
 
-  y += TEXT_HEIGHT + MARGIN;
-
-  display.printEmpty(0, y, 5, &Display::blackPainter, 2, 2);
-  display.print(0, y, label, &Display::whitePainter, &Display::blackPainter, 2, 2);
+  m_app.m_cameraSettingsView.setValue(1, label);
 }
 
 // EditFrameState
@@ -552,7 +541,8 @@ void EditFrameState::activate()
 
   m_editFocal = false;
 
-  m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 2);
+  m_app.m_cameraSettingsView.setColumns(3);
+  m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 4);
 
   updateSettingsExposure();
   drawTitle();
@@ -980,7 +970,8 @@ void LightMeterState::activate()
 
   m_editISO = false;
 
-  m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 2);
+  m_app.m_cameraSettingsView.setColumns(3);
+  m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 4);
 
   updateSettingsExposure();
   drawTitle();

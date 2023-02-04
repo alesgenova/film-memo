@@ -5,9 +5,6 @@
 #include "Controls.h"
 
 
-const uint8_t COLUMN_WIDTH = 42;
-const uint8_t COLUMN_START[3] = {0, COLUMN_WIDTH + 1, 2 * COLUMN_WIDTH + 2};
-
 CameraSettingsView::CameraSettingsView()
 {}
 
@@ -26,6 +23,28 @@ void CameraSettingsView::setPosition(uint8_t y)
   drawSeparators();
 }
 
+uint8_t CameraSettingsView::columns() const
+{
+  return m_cols;
+}
+
+void CameraSettingsView::setColumns(uint8_t cols)
+{
+  m_cols = cols;
+}
+
+uint8_t CameraSettingsView::columnWidth(uint8_t n)
+{
+  return (128 - n - 1) / n;
+}
+
+uint8_t CameraSettingsView::columnStart(uint8_t col, uint8_t n)
+{
+  const uint8_t width = columnWidth(n);
+
+  return (width + 1) * col;
+}
+
 void CameraSettingsView::drawSeparators()
 {
   auto& display = Controls::instance().display;
@@ -33,13 +52,14 @@ void CameraSettingsView::drawSeparators()
   const uint8_t y0 = m_y;
   const uint8_t y1 = y0 + 3 * TEXT_HEIGHT + MARGIN;
 
-  display.drawVLine(COLUMN_START[1] - 1, y0, y1);
-  display.drawVLine(COLUMN_START[2] - 1, y0, y1);
+  for (uint8_t i = 0; i < m_cols - 1; ++i) {
+    display.drawVLine(columnStart(i + 1, m_cols) - 1, y0, y1);
+  }
 }
 
 void CameraSettingsView::setLabel(uint8_t col, const char* label, bool invert = false)
 {
-  if (col > 2) {
+  if (col >= m_cols) {
     return;
   }
 
@@ -47,13 +67,16 @@ void CameraSettingsView::setLabel(uint8_t col, const char* label, bool invert = 
 
   const uint8_t y = m_y;
 
-  display.fillRectangle(COLUMN_START[col], y, COLUMN_START[col] + COLUMN_WIDTH - 1, y + TEXT_HEIGHT, &Display::blackPainter);
+  const uint8_t colWidth = columnWidth(m_cols);
+  const uint8_t colStart = columnStart(col, m_cols);
+
+  display.fillRectangle(colStart, y, colStart + colWidth - 1, y + TEXT_HEIGHT, &Display::blackPainter);
 
   const uint8_t n = strlen(label);
 
   const uint8_t textWidth = n * 6;
 
-  const uint8_t x = COLUMN_START[col] + COLUMN_WIDTH / 2 - textWidth / 2;
+  const uint8_t x = colStart + colWidth / 2 - textWidth / 2;
 
   Display::Painter color = &Display::whitePainter;
   Display::Painter bg = &Display::blackPainter;
@@ -68,7 +91,7 @@ void CameraSettingsView::setLabel(uint8_t col, const char* label, bool invert = 
 
 void CameraSettingsView::setValue(uint8_t col, const char* value)
 {
-  if (col > 2) {
+  if (col >= m_cols) {
     return;
   }
 
@@ -76,15 +99,18 @@ void CameraSettingsView::setValue(uint8_t col, const char* value)
 
   const uint8_t y = m_y + TEXT_HEIGHT + MARGIN;
 
-  display.fillRectangle(COLUMN_START[col], y, COLUMN_START[col] + COLUMN_WIDTH - 1, y + 2 * TEXT_HEIGHT, &Display::blackPainter);
+  const uint8_t colWidth = columnWidth(m_cols);
+  const uint8_t colStart = columnStart(col, m_cols);
+
+  display.fillRectangle(colStart, y, colStart + colWidth - 1, y + 2 * TEXT_HEIGHT, &Display::blackPainter);
 
   const uint8_t n = strlen(value);
 
-  const uint8_t xScale = n > 3 ? 1 : 2;
+  const uint8_t xScale = n * 12 > colWidth ? 1 : 2;
 
   const uint8_t textWidth = n * 6 * xScale;
 
-  const uint8_t x = COLUMN_START[col] + COLUMN_WIDTH / 2 - textWidth / 2;
+  const uint8_t x = colStart + colWidth / 2 - textWidth / 2;
 
   display.print(x, y, value, &Display::whitePainter, &Display::blackPainter, xScale, 2);
 }
