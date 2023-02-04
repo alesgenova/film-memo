@@ -10,8 +10,10 @@ namespace Persistency {
 const uint8_t SETTINGS_BYTES = 64;
 
 const uint16_t AUTO_SHUTTER_BYTE = 0;
-const uint16_t SHUTTER_CALIBRATION_BYTE = 1;
+const uint16_t SHUTTER_CALIBRATION_BYTE = AUTO_SHUTTER_BYTE + 1;
 const uint16_t SHUTTER_BYTES = sizeof(uint32_t);
+
+const uint16_t METER_CALIBRATION_BYTE = SHUTTER_CALIBRATION_BYTE + 10 * SHUTTER_BYTES;
 
 const uint16_t ROLL_BYTES = sizeof(Roll);
 const uint16_t FRAME_BYTES = sizeof(Frame);
@@ -38,6 +40,16 @@ void writeShutterCalibration(uint8_t shutterId, const uint32_t& value)
   int address = SHUTTER_CALIBRATION_BYTE + shutterId * SHUTTER_BYTES;
 
   EEPROM.put(address, value);
+}
+
+void readMeterCalibration(float& value)
+{
+  EEPROM.get(METER_CALIBRATION_BYTE, value);
+}
+
+void writeMeterCalibration(const float& value)
+{
+  EEPROM.put(METER_CALIBRATION_BYTE, value);
 }
 
 void readRoll(uint8_t rollId, Roll& roll)

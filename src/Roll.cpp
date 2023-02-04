@@ -2,6 +2,8 @@
 
 #include <WString.h>
 
+#include "common_strings.h"
+
 RollManufacturer Roll::manufacturer() const
 {
   return m_manufacturer;
@@ -35,11 +37,8 @@ void rollManufacturerAsString(RollManufacturer manufacturer, char* s, uint8_t n)
     } case RollManufacturer::Other : {
       strncpy_P(s, PSTR("Other"), n);
       break;
-    } case RollManufacturer::None : {
-      strncpy_P(s, PSTR("None"), n);
-      break;
     } default: {
-      strncpy_P(s, PSTR("Unk"), n);
+      strncpy_P(s, UNKNOWN_STR, n);
     }
   }
 

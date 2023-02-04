@@ -54,7 +54,7 @@ void apertureValueAsString(ApertureValue aperture, char* s, uint8_t n);
 void shutterSpeedAsString(ShutterSpeed shutter, char* s, uint8_t n);
 void isoValueAsString(ISOValue iso, char* s, uint8_t n);
 
-float meterValueToExposureValue(int raw);
+float meterValueToExposureValue(int raw, float calibrationConstant);
 
 float cameraSettingsToExposureValue(ShutterSpeed shutter, ApertureValue aperture, ISOValue iso);
 

@@ -12,6 +12,7 @@ enum class ActionType : uint8_t {
   // Settings menu actions
   EnableHotShoeShutter,
   CalibrateHotShoeShutter,
+  CalibrateMeter,
   About
 };
 

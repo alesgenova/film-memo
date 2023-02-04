@@ -10,10 +10,8 @@
 #endif
 
 #if __MEMO
-
 #include <Arduino.h>
 #include "Persistency.h"
-
 #endif
 
 
@@ -68,7 +66,7 @@ void DebugAppState::onClickButtonB(uint32_t t)
 
   auto& meter = Controls::instance().meter;
   if (meter.mode() == MeterMode::Single) {
-    meter.takeReading();
+    meter.setMode(MeterMode::Single);
   }
 }
 
@@ -254,16 +252,16 @@ void ListState::setIsFrameTarget(bool isFrameTarget)
 
 void ListState::onClickButtonA(uint32_t t)
 {
+  m_app.m_state->deactivate();
+
   if (m_isFrameTarget) {
-    m_app.m_state->deactivate();
     m_app.m_listState.setIsFrameTarget(false);
     m_app.m_state = &m_app.m_listState;
-    m_app.m_state->activate();
   } else {
-    m_app.m_state->deactivate();
     m_app.m_state = &m_app.m_meterState;
-    m_app.m_state->activate();
   }
+
+  m_app.m_state->activate();
 }
 
 void ListState::onLongpressButtonA(uint32_t t)
@@ -277,12 +275,12 @@ void ListState::onLongpressButtonA(uint32_t t)
 
 void ListState::onClickButtonB(uint32_t t)
 {
+  m_app.m_state->deactivate();
+
   if (m_isFrameTarget) {
     m_app.m_activeFrameId = m_app.m_listView.selected();
 
-    m_app.m_state->deactivate();
     m_app.m_state = &m_app.m_editFrameState;
-    m_app.m_state->activate();
 
   } else {
     m_app.m_activeRollId = m_app.m_listView.selected();
@@ -292,16 +290,18 @@ void ListState::onClickButtonB(uint32_t t)
     Persistency::readRoll(m_app.m_activeRollId, selectedRoll);
 
     if (selectedRoll.manufacturer() == RollManufacturer::None) {
-      m_app.m_state->deactivate();
+
       m_app.m_state = &m_app.m_editRollState;
-      m_app.m_state->activate();
+
     } else {
-      m_app.m_state->deactivate();
+
       m_app.m_listState.setIsFrameTarget(true);
       m_app.m_state = &m_app.m_listState;
-      m_app.m_state->activate();
+
     }
   }
+
+  m_app.m_state->activate();
 }
 
 void ListState::onLongpressButtonB(uint32_t t)
@@ -384,19 +384,14 @@ void EditRollState::activate()
 
   display.clear();
 
-  Roll activeRoll;
-  Persistency::readRoll(m_app.m_activeRollId, activeRoll);
+  Persistency::readRoll(m_app.m_activeRollId, m_roll);
 
-  if (activeRoll.manufacturer() == RollManufacturer::None) {
+  if (m_roll.manufacturer() == RollManufacturer::None) {
     m_roll.setManufacturer(RollManufacturer::Fuji);
-  } else {
-    m_roll.setManufacturer(activeRoll.manufacturer());
   }
 
-  if (activeRoll.iso() == ISOValue::None) {
+  if (m_roll.iso() == ISOValue::None) {
     m_roll.setIso(ISOValue::_400);
-  } else {
-    m_roll.setIso(activeRoll.iso());
   }
 
   drawTitle();
@@ -419,10 +414,7 @@ void EditRollState::onClickButtonB(uint32_t t)
 {
   Persistency::saveRoll(m_app.m_activeRollId, m_roll);
 
-  m_app.m_state->deactivate();
-  m_app.m_listState.setIsFrameTarget(false);
-  m_app.m_state = &m_app.m_listState;
-  m_app.m_state->activate();
+  onClickButtonA(t);
 }
 
 void EditRollState::onRightRotaryA(uint32_t t)
@@ -542,7 +534,6 @@ void EditFrameState::activate()
   display.clear();
 
   meter.setMode(MeterMode::Single);
-  meter.takeReading();
 
   Persistency::readRoll(m_app.m_activeRollId, m_roll);
   Persistency::readFrame(m_app.m_activeRollId, m_app.m_activeFrameId, m_frame);
@@ -614,16 +605,13 @@ void EditFrameState::onClickButtonB(uint32_t t)
 
   // If the next frame is not empty, return to list
 
-  m_app.m_state->deactivate();
-  m_app.m_listState.setIsFrameTarget(true);
-  m_app.m_state = &m_app.m_listState;
-  m_app.m_state->activate();
+  onClickButtonA(t);
 }
 
 void EditFrameState::onLongpressButtonA(uint32_t t)
 {
   auto& meter = Controls::instance().meter;
-  meter.takeReading();
+  meter.setMode(MeterMode::Single);
 }
 
 void EditFrameState::onLongpressButtonB(uint32_t t)
@@ -695,7 +683,7 @@ void EditFrameState::onUpFlash(uint32_t t)
 
 void EditFrameState::onMeterReading(int value)
 {
-  m_meterExposure = meterValueToExposureValue(value);
+  m_meterExposure = meterValueToExposureValue(value, m_app.m_meterCalibration);
 
   m_app.m_meterView.setReading(m_meterExposure - m_settingsExposure);
 }
@@ -987,6 +975,9 @@ void LightMeterState::activate()
 
   display.clear();
 
+  auto& meter = Controls::instance().meter;
+  meter.setMode(MeterMode::Single);
+
   m_editISO = false;
 
   m_app.m_cameraSettingsView.setPosition(TITLE_HEIGHT + MARGIN * 2);
@@ -1005,14 +996,12 @@ void LightMeterState::deactivate()
 {
   auto& meter = Controls::instance().meter;
   meter.setMode(MeterMode::Single);
-  meter.takeReading();
 }
 
 void LightMeterState::onClickButtonA(uint32_t t)
 {
   auto& meter = Controls::instance().meter;
   meter.setMode(MeterMode::Single);
-  meter.takeReading();
 }
 
 void LightMeterState::onLongpressButtonA(uint32_t t)
@@ -1065,7 +1054,7 @@ void LightMeterState::onLeftRotaryB(uint32_t t)
 
 void LightMeterState::onMeterReading(int value)
 {
-  m_meterExposure = meterValueToExposureValue(value);
+  m_meterExposure = meterValueToExposureValue(value, m_app.m_meterCalibration);
 
   m_app.m_meterView.setReading(m_meterExposure - m_settingsExposure);
 }
@@ -1170,9 +1159,10 @@ void LightMeterState::updateSettingsExposure()
 SettingsState::SettingsState(App& app)
   : AppState(app)
 {
-  m_actions[0].type = ActionType::EnableHotShoeShutter;
-  m_actions[1].type = ActionType::CalibrateHotShoeShutter;
-  m_actions[2].type = ActionType::About;
+  m_actions[0].type = ActionType::CalibrateMeter;
+  m_actions[1].type = ActionType::EnableHotShoeShutter;
+  m_actions[2].type = ActionType::CalibrateHotShoeShutter;
+  m_actions[3].type = ActionType::About;
 }
 
 SettingsState::~SettingsState()
@@ -1185,12 +1175,11 @@ void SettingsState::activate()
   display.clear();
 
   const uint8_t padding = 6;
-  uint8_t bounds[4] = {0, 0, 109, 64};
+  uint8_t bounds[4] = {0, 0, 107, 64};
 
-  display.drawHLine(109, 9, 127);
+  display.drawHLine(107, 9, 127);
 
   m_app.m_listView.setBounds(bounds);
-  char title[22];
 
   m_app.m_listView.setTitle("Settings");
 
@@ -1198,13 +1187,19 @@ void SettingsState::activate()
   itemGetter.boundObj = this;
   itemGetter.getter = &SettingsState::itemGetter;
 
-  m_app.m_listView.setItems(itemGetter, 3);
+  m_app.m_listView.setItems(itemGetter, 4);
 
   drawAutoShutter();
+  drawMeterCalibration();
+
+  display.print(122, 29, F("~"));
+  display.print(122, 38, F("~"));
 }
 
 void SettingsState::deactivate()
-{}
+{
+  Persistency::readMeterCalibration(m_app.m_meterCalibration);
+}
 
 void SettingsState::onClickButtonA(uint32_t t)
 {
@@ -1235,6 +1230,10 @@ void SettingsState::onClickButtonB(uint32_t t)
       m_app.m_state->activate();
       return;
     }
+    case ActionType::CalibrateMeter: {
+      Persistency::writeMeterCalibration(m_app.m_meterCalibration);
+      return;
+    }
     default: {
       return;
     }
@@ -1252,21 +1251,32 @@ void SettingsState::onLeftRotaryA(uint32_t t)
 }
 
 void SettingsState::onRightRotaryB(uint32_t t)
-{}
+{
+  Action selectedAction = m_actions[m_app.m_listView.selected()];
+
+  if (selectedAction.type == ActionType::CalibrateMeter && m_app.m_meterCalibration <= 9.8) {
+    m_app.m_meterCalibration += 0.1;
+    drawMeterCalibration();
+  }
+}
 
 void SettingsState::onLeftRotaryB(uint32_t t)
-{}
+{
+  Action selectedAction = m_actions[m_app.m_listView.selected()];
 
-void SettingsState::drawTitle()
-{}
+  if (selectedAction.type == ActionType::CalibrateMeter && m_app.m_meterCalibration >= 0.2) {
+    m_app.m_meterCalibration -= 0.1;
+    drawMeterCalibration();
+  }
+}
 
 void SettingsState::drawAutoShutter()
 {
   auto& display = Controls::instance().display;
 
-  const uint8_t x0 = 119;
-  const uint8_t y0 = 11;
-  const uint8_t w = 8;
+  const uint8_t x0 = 120;
+  const uint8_t y0 = 20;
+  const uint8_t w = 7;
 
   display.drawRectangle(x0, y0, x0 + w, y0 + w);
 
@@ -1279,6 +1289,21 @@ void SettingsState::drawAutoShutter()
   }
 
   display.fillRectangle(x0 + 2, y0 + 2, x0 + w - 2, y0 + w - 2, fill);
+}
+
+void SettingsState::drawMeterCalibration()
+{
+  auto& display = Controls::instance().display;
+
+  uint8_t x = 110;
+  const uint8_t y0 = 11;
+
+  const uint8_t integerPart = m_app.m_meterCalibration + 0.01;
+  const uint8_t decimalPart = round(10 * (m_app.m_meterCalibration - integerPart));
+
+  x = display.print(x, y0, integerPart);
+  x = display.print(x, y0, F("."));
+  x = display.print(x, y0, decimalPart);
 }
 
 void SettingsState::changeAutoShutter()

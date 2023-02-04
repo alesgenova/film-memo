@@ -46,6 +46,8 @@ protected:
 
   bool m_autoShutter;
 
+  float m_meterCalibration;
+
   ListView m_listView;
   MeterView m_meterView;
   CameraSettingsView m_cameraSettingsView;

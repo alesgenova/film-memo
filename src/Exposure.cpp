@@ -3,15 +3,16 @@
 #include <math.h>
 #include <WString.h>
 
+#include "common_strings.h"
+
 float log2(float x)
 {
   return log(x) / log(2);
 }
 
-float meterValueToExposureValue(int raw)
+float meterValueToExposureValue(int raw, float calibrationConstant)
 {
-  const float CALIBRATION_CONSTANT = 6.3;
-  return log2(raw) + CALIBRATION_CONSTANT;
+  return log2(raw) + calibrationConstant;
 }
 
 float cameraSettingsToExposureValue(ShutterSpeed shutter, ApertureValue aperture, ISOValue iso)
@@ -126,7 +127,7 @@ void apertureValueAsString(ApertureValue aperture, char* s, uint8_t n)
       strncpy_P(s, PSTR("22"), n);
       break;
     } default: {
-      strncpy_P(s, PSTR("Unk"), n);
+      strncpy_P(s, UNKNOWN_STR, n);
       break;
     }
   }
@@ -136,69 +137,79 @@ void apertureValueAsString(ApertureValue aperture, char* s, uint8_t n)
 
 void shutterSpeedAsString(ShutterSpeed shutter, char* s, uint8_t n)
 {
+  uint16_t value;
+
   switch(shutter) {
     case ShutterSpeed::_2 : {
-      strncpy_P(s, PSTR("2"), n);
+      value = 2;
       break;
     } case ShutterSpeed::_4 : {
-      strncpy_P(s, PSTR("4"), n);
+      value = 4;
       break;
     } case ShutterSpeed::_8 : {
-      strncpy_P(s, PSTR("8"), n);
+      value = 8;
       break;
     } case ShutterSpeed::_15 : {
-      strncpy_P(s, PSTR("15"), n);
+      value = 15;
       break;
     } case ShutterSpeed::_30 : {
-      strncpy_P(s, PSTR("30"), n);
+      value = 30;
       break;
     } case ShutterSpeed::_60 : {
-      strncpy_P(s, PSTR("60"), n);
+      value = 60;
       break;
     } case ShutterSpeed::_125 : {
-      strncpy_P(s, PSTR("125"), n);
+      value = 125;
       break;
     } case ShutterSpeed::_250 : {
-      strncpy_P(s, PSTR("250"), n);
+      value = 250;
       break;
     } case ShutterSpeed::_500 : {
-      strncpy_P(s, PSTR("500"), n);
+      value = 500;
       break;
     } case ShutterSpeed::_1000 : {
-      strncpy_P(s, PSTR("1000"), n);
+      value = 1000;
       break;
     } default: {
-      strncpy_P(s, PSTR("Unk"), n);
-      break;
+      strncpy_P(s, UNKNOWN_STR, n);
+      s[n-1] = '\0';
+      return;
     }
   }
+
+  itoa(value, s, 10);
 
   s[n-1] = '\0';
 }
 
 void isoValueAsString(ISOValue iso, char* s, uint8_t n)
 {
+  uint16_t value;
+
   switch(iso) {
     case ISOValue::_100 : {
-      strncpy_P(s, PSTR("100"), n);
+      value = 100;
       break;
     } case ISOValue::_200 : {
-      strncpy_P(s, PSTR("200"), n);
+      value = 200;
       break;
     } case ISOValue::_400 : {
-      strncpy_P(s, PSTR("400"), n);
+      value = 400;
       break;
     } case ISOValue::_800 : {
-      strncpy_P(s, PSTR("800"), n);
+      value = 800;
       break;
     } case ISOValue::_1600 : {
-      strncpy_P(s, PSTR("1600"), n);
+      value = 1600;
       break;
     } default: {
-      strncpy_P(s, PSTR("Unk"), n);
-      break;
+      strncpy_P(s, UNKNOWN_STR, n);
+      s[n-1] = '\0';
+      return;
     }
   }
+
+  itoa(value, s, 10);
 
   s[n-1] = '\0';
 }
