@@ -29,6 +29,7 @@ public:
 
 protected:
   void drawItems();
+  void drawSelection();
 
   uint8_t itemsPerPage() const;
 
