@@ -49,8 +49,8 @@ void Roll::asString(uint8_t i, char* s, uint8_t n)
 {
   uint8_t p = 0;
 
-  strncpy_P(s, PSTR(" #"), n);
-  p += 2;
+  strncpy_P(s, PSTR("#"), n);
+  p += 1;
 
   {
     char tmp[4];

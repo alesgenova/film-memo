@@ -16,7 +16,7 @@ void ListView::setTitle(const char* title)
 
   display.fillRectangle(m_bounds[0], m_bounds[1], m_bounds[0] + m_bounds[2], m_bounds[1] + TEXT_HEIGHT, &Display::blackPainter);
   display.print(m_bounds[0], m_bounds[1], title);
-  display.drawHLine(m_bounds[0], m_bounds[1] + TEXT_HEIGHT + MARGIN, m_bounds[0] + m_bounds[2]);
+  display.drawHLine(m_bounds[0], m_bounds[1] + TEXT_HEIGHT, m_bounds[0] + m_bounds[2]);
 }
 
 void ListView::bounds(uint8_t b[4])
@@ -59,9 +59,15 @@ void ListView::setSelected(int8_t targetId)
   targetId = max(0, targetId);
 
   if (targetId != m_selected) {
-    m_selected = targetId;
-    m_offset = max(0, m_selected - 2);
-    drawItems();
+    if (size() <= itemsPerPage()) {
+      drawSelection(); // deselect previous
+      m_selected = targetId;
+      drawSelection(); // select current
+    } else {
+      m_selected = targetId;
+      m_offset = max(0, m_selected - 2);
+      drawItems();
+    }
   }
 }
 
@@ -134,7 +140,7 @@ void ListView::drawItems()
 
       m_itemGetter.getter(m_itemGetter.boundObj, itemIdx, label, 20);
 
-      display.print(m_bounds[0], y, label);
+      display.print(m_bounds[0] + 6, y, label);
     }
   }
 
@@ -145,7 +151,7 @@ void ListView::drawSelection()
 {
   auto& display = Controls::instance().display;
 
-  uint8_t y = m_bounds[1] + TITLE_HEIGHT + MARGIN + (TEXT_HEIGHT + MARGIN) * (m_selected - m_offset);
+  uint8_t y = m_bounds[1] + TITLE_HEIGHT + (TEXT_HEIGHT + MARGIN) * (m_selected - m_offset);
 
   display.fillRectangle(m_bounds[0], y, m_bounds[0] + m_bounds[2], y + TEXT_HEIGHT, &Display::inversePainter);
 }
