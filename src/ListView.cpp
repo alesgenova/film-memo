@@ -73,9 +73,17 @@ void ListView::selectNext(uint8_t step)
   }
 
   if (m_selected < size() - 1) {
-    ++m_selected;
-    m_offset = max(m_offset, m_selected - itemsPerPage() + 1);
-    drawItems();
+    uint8_t selected = m_selected + 1;
+    uint8_t offset = max(m_offset, selected - itemsPerPage() + 1);
+    if (offset != m_offset) {
+      m_offset = offset;
+      m_selected = selected;
+      drawItems();
+    } else {
+      drawSelection(); // deselect previous
+      m_selected = selected;
+      drawSelection(); // select current
+    }
   }
 }
 
@@ -87,9 +95,17 @@ void ListView::selectPrev(uint8_t step)
   }
 
   if (m_selected > 0) {
-    --m_selected;
-    m_offset = min(m_offset, m_selected);
-    drawItems();
+    uint8_t selected = m_selected - 1;
+    uint8_t offset = min(m_offset, selected);
+    if (offset != m_offset) {
+      m_offset = offset;
+      m_selected = selected;
+      drawItems();
+    } else {
+      drawSelection(); // deselect previous
+      m_selected = selected;
+      drawSelection(); // select current
+    }
   }
 }
 
@@ -116,14 +132,20 @@ void ListView::drawItems()
 
       uint8_t y = m_bounds[1] + TITLE_HEIGHT + MARGIN + (TEXT_HEIGHT + MARGIN) * i;
 
-      Display::Painter color = itemIdx == m_selected ? &Display::blackPainter : &Display::whitePainter;
-      Display::Painter bg = itemIdx == m_selected ? &Display::whitePainter : &Display::blackPainter;
-
-      display.fillRectangle(m_bounds[0], y, m_bounds[0] + m_bounds[2], y + TEXT_HEIGHT, bg);
-
       m_itemGetter.getter(m_itemGetter.boundObj, itemIdx, label, 20);
 
-      display.print(m_bounds[0], y, label, color, bg);
+      display.print(m_bounds[0], y, label);
     }
   }
+
+  drawSelection();
+}
+
+void ListView::drawSelection()
+{
+  auto& display = Controls::instance().display;
+
+  uint8_t y = m_bounds[1] + TITLE_HEIGHT + MARGIN + (TEXT_HEIGHT + MARGIN) * (m_selected - m_offset);
+
+  display.fillRectangle(m_bounds[0], y, m_bounds[0] + m_bounds[2], y + TEXT_HEIGHT, &Display::inversePainter);
 }
