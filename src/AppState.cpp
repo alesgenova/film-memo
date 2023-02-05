@@ -223,10 +223,10 @@ void ListState::activate()
   uint8_t activeItem;
 
   if (m_isFrameTarget) {
-    strncpy_P(title, PSTR("Roll"), 22);
+    strncpy_P(title, PSTR("Roll "), 22);
     Roll roll;
     Persistency::readRoll(m_app.m_activeRollId, roll);
-    roll.asString(m_app.m_activeRollId, title + 4, 18);
+    roll.asString(m_app.m_activeRollId, title + 5, 17);
     itemGetter.getter = &ListState::frameItemGetter;
     size = N_FRAMES_PER_ROLL;
     activeItem = m_app.m_activeFrameId;
@@ -816,15 +816,15 @@ void EditModalState::activate()
   char title[22];
 
   if (m_isFrameTarget) {
-    strncpy_P(title, PSTR("Frame"), 22);
+    strncpy_P(title, PSTR("Frame "), 22);
     Frame frame;
     Persistency::readFrame(m_app.m_activeRollId, m_app.m_activeFrameId, frame);
-    frame.asString(m_app.m_activeFrameId, title + 5, 17);
+    frame.asString(m_app.m_activeFrameId, title + 6, 16);
   } else {
-    strncpy_P(title, PSTR("Roll"), 22);
+    strncpy_P(title, PSTR("Roll "), 22);
     Roll roll;
     Persistency::readRoll(m_app.m_activeRollId, roll);
-    roll.asString(m_app.m_activeRollId, title + 4, 18);
+    roll.asString(m_app.m_activeRollId, title + 5, 17);
   }
 
   m_app.m_listView.setTitle(title);
@@ -1168,7 +1168,7 @@ void SettingsState::activate()
   const uint8_t padding = 6;
   uint8_t bounds[4] = {0, 0, 107, 64};
 
-  display.drawHLine(107, 9, 127);
+  display.drawHLine(107, 8, 127);
 
   m_app.m_listView.setBounds(bounds);
 
