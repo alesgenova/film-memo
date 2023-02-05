@@ -48,6 +48,8 @@ protected:
 
   float m_meterCalibration;
 
+  uint8_t m_displayContrast;
+
   ListView m_listView;
   MeterView m_meterView;
   CameraSettingsView m_cameraSettingsView;

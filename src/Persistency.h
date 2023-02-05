@@ -15,6 +15,9 @@ void writeShutterCalibration(uint8_t shutterId, const uint32_t& value);
 void readMeterCalibration(float& value);
 void writeMeterCalibration(const float& value);
 
+void readDisplayContrast(uint8_t& value);
+void writeDisplayContrast(const uint8_t& value);
+
 void readRoll(uint8_t rollId, Roll& roll);
 void saveRoll(uint8_t rollId, const Roll& roll);
 

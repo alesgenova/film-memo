@@ -15,6 +15,8 @@ const uint16_t SHUTTER_BYTES = sizeof(uint32_t);
 
 const uint16_t METER_CALIBRATION_BYTE = SHUTTER_CALIBRATION_BYTE + 10 * SHUTTER_BYTES;
 
+const uint16_t DISPLAY_CONTRAST_BYTE = METER_CALIBRATION_BYTE + sizeof(float);
+
 const uint16_t ROLL_BYTES = sizeof(Roll);
 const uint16_t FRAME_BYTES = sizeof(Frame);
 
@@ -50,6 +52,16 @@ void readMeterCalibration(float& value)
 void writeMeterCalibration(const float& value)
 {
   EEPROM.put(METER_CALIBRATION_BYTE, value);
+}
+
+void readDisplayContrast(uint8_t& value)
+{
+  value = EEPROM.read(DISPLAY_CONTRAST_BYTE);
+}
+
+void writeDisplayContrast(const uint8_t& value)
+{
+  EEPROM.update(DISPLAY_CONTRAST_BYTE, value);
 }
 
 void readRoll(uint8_t rollId, Roll& roll)

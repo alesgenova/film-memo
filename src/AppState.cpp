@@ -1151,9 +1151,10 @@ SettingsState::SettingsState(App& app)
   : AppState(app)
 {
   m_actions[0].type = ActionType::CalibrateMeter;
-  m_actions[1].type = ActionType::EnableHotShoeShutter;
-  m_actions[2].type = ActionType::CalibrateHotShoeShutter;
-  m_actions[3].type = ActionType::About;
+  m_actions[1].type = ActionType::DisplayContrast;
+  m_actions[2].type = ActionType::EnableHotShoeShutter;
+  m_actions[3].type = ActionType::CalibrateHotShoeShutter;
+  m_actions[4].type = ActionType::About;
 }
 
 SettingsState::~SettingsState()
@@ -1178,18 +1179,21 @@ void SettingsState::activate()
   itemGetter.boundObj = this;
   itemGetter.getter = &SettingsState::itemGetter;
 
-  m_app.m_listView.setItems(itemGetter, 4);
+  m_app.m_listView.setItems(itemGetter, 5);
 
   drawAutoShutter();
   drawMeterCalibration();
+  drawDisplayContrast();
 
-  display.print(122, 29, F("~"));
   display.print(122, 38, F("~"));
+  display.print(122, 47, F("~"));
 }
 
 void SettingsState::deactivate()
 {
   Persistency::readMeterCalibration(m_app.m_meterCalibration);
+  Persistency::readDisplayContrast(m_app.m_displayContrast);
+  Controls::instance().display.setContrast(m_app.m_displayContrast);
 }
 
 void SettingsState::onClickButtonA(uint32_t t)
@@ -1221,6 +1225,10 @@ void SettingsState::onClickButtonB(uint32_t t)
       m_app.m_state->activate();
       return;
     }
+    case ActionType::DisplayContrast: {
+      Persistency::writeDisplayContrast(m_app.m_displayContrast);
+      return;
+    }
     case ActionType::CalibrateMeter: {
       Persistency::writeMeterCalibration(m_app.m_meterCalibration);
       return;
@@ -1249,6 +1257,10 @@ void SettingsState::onRightRotaryB(uint32_t t)
     m_app.m_meterCalibration += 0.1;
     drawMeterCalibration();
   }
+  else if (selectedAction.type == ActionType::DisplayContrast && m_app.m_displayContrast < 255) {
+    ++m_app.m_displayContrast;
+    drawDisplayContrast();
+  }
 }
 
 void SettingsState::onLeftRotaryB(uint32_t t)
@@ -1257,7 +1269,13 @@ void SettingsState::onLeftRotaryB(uint32_t t)
 
   if (selectedAction.type == ActionType::CalibrateMeter && m_app.m_meterCalibration >= 0.2) {
     m_app.m_meterCalibration -= 0.1;
+    Controls::instance().display.setContrast(m_app.m_displayContrast);
     drawMeterCalibration();
+  }
+  else if (selectedAction.type == ActionType::DisplayContrast && m_app.m_displayContrast >= 2) {
+    --m_app.m_displayContrast;
+    Controls::instance().display.setContrast(m_app.m_displayContrast);
+    drawDisplayContrast();
   }
 }
 
@@ -1266,7 +1284,7 @@ void SettingsState::drawAutoShutter()
   auto& display = Controls::instance().display;
 
   const uint8_t x0 = 120;
-  const uint8_t y0 = 20;
+  const uint8_t y0 = 29;
   const uint8_t w = 7;
 
   display.drawRectangle(x0, y0, x0 + w, y0 + w);
@@ -1295,6 +1313,16 @@ void SettingsState::drawMeterCalibration()
   x = display.print(x, y0, integerPart);
   x = display.print(x, y0, F("."));
   x = display.print(x, y0, decimalPart);
+}
+
+void SettingsState::drawDisplayContrast()
+{
+  auto& display = Controls::instance().display;
+
+  uint8_t x = 110;
+  const uint8_t y0 = 20;
+
+  display.print(x, y0, m_app.m_displayContrast);
 }
 
 void SettingsState::changeAutoShutter()

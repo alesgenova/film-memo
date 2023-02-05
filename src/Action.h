@@ -13,6 +13,7 @@ enum class ActionType : uint8_t {
   EnableHotShoeShutter,
   CalibrateHotShoeShutter,
   CalibrateMeter,
+  DisplayContrast,
   About
 };
 

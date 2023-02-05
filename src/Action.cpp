@@ -31,6 +31,10 @@ void Action::asString(uint8_t i, char* s, uint8_t n)
       strncpy_P(s, PSTR("Meter const."), n);
       break;
     }
+    case ActionType::DisplayContrast: {
+      strncpy_P(s, PSTR("Contrast"), n);
+      break;
+    }
     case ActionType::About: {
       strncpy_P(s, PSTR("About"), n);
       break;

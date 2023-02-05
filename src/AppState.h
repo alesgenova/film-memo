@@ -267,6 +267,7 @@ public:
 protected:
   void drawAutoShutter();
   void drawMeterCalibration();
+  void drawDisplayContrast();
 
   void changeAutoShutter();
 
